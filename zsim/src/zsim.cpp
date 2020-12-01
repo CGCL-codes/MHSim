@@ -162,7 +162,9 @@ typedef struct RtnCount
 // Linked list of instruction counts for each routine
 RTN_COUNT * RtnList = 0;
 
-
+VOID ArgAfter(){
+    Masked = false;
+}
 
 
 //  cblas_sgemm(CblasRowMajor, TransA, TransB, M, N, K, alpha, A, lda, B,
@@ -193,13 +195,13 @@ VOID Arg3Before(CONTEXT *ctxt, ADDRINT transA, ADDRINT transB, ADDRINT M, ADDRIN
 
         Memristor_CU<RealDevice> *mcu;
         if(transpose) {
-            //zinfo->chip->memristor_mm(B,A,C,N,M,K);
+            Masked = zinfo->chip->memristor_mm(B,A,C,N,M,K);
 
 
         }
         else
         {
-            zinfo->chip->memristor_mm(A,B,C,M,N,K);
+            Masked = zinfo->chip->memristor_mm(A,B,C,M,N,K);
         }
 
     }else{
@@ -249,17 +251,17 @@ VOID FFThread(VOID* arg);
 InstrFuncPtrs fPtrs[MAX_THREADS] ATTR_LINE_ALIGNED; //minimize false sharing
 
 VOID PIN_FAST_ANALYSIS_CALL IndirectLoadSingle(THREADID tid, ADDRINT addr) {
-    if(!Masked)
+    if(likely(!Masked))
     fPtrs[tid].loadPtr(tid, addr);
 }
 
 VOID PIN_FAST_ANALYSIS_CALL IndirectStoreSingle(THREADID tid, ADDRINT addr) {
-    if(!Masked)
+    if(likely(!Masked))
     fPtrs[tid].storePtr(tid, addr);
 }
 
 VOID PIN_FAST_ANALYSIS_CALL IndirectBasicBlock(THREADID tid, ADDRINT bblAddr, BblInfo* bblInfo) {
-    if(!Masked)
+    if(likely(!Masked))
     fPtrs[tid].bblPtr(tid, bblAddr, bblInfo);
 }
 
@@ -268,60 +270,60 @@ VOID PIN_FAST_ANALYSIS_CALL IndirectRecordBranch(THREADID tid, ADDRINT branchPc,
 }
 
 VOID PIN_FAST_ANALYSIS_CALL IndirectPredLoadSingle(THREADID tid, ADDRINT addr, BOOL pred) {
-    if(!Masked)
+    if(likely(!Masked))
     fPtrs[tid].predLoadPtr(tid, addr, pred);
 }
 
 VOID PIN_FAST_ANALYSIS_CALL IndirectPredStoreSingle(THREADID tid, ADDRINT addr, BOOL pred) {
-    if(!Masked)
+    if(likely(!Masked))
     fPtrs[tid].predStorePtr(tid, addr, pred);
 }
 VOID PIN_FAST_ANALYSIS_CALL IndirectArithmeticSingle1(THREADID tid){
-    if(!Masked)
+    if(likely(!Masked))
     fPtrs[tid].arithmeticPtr(tid,ADCX);
 }
 VOID PIN_FAST_ANALYSIS_CALL IndirectArithmeticSingle4(THREADID tid){
-    if(!Masked)
+    if(likely(!Masked))
     fPtrs[tid].arithmeticPtr(tid,PHADDD);
 }
 VOID PIN_FAST_ANALYSIS_CALL IndirectArithmeticSingle5(THREADID tid){
-    if(!Masked)
+    if(likely(!Masked))
     fPtrs[tid].arithmeticPtr(tid,PMULUDQ);
 }
 VOID PIN_FAST_ANALYSIS_CALL IndirectArithmeticSingle6(THREADID tid){
-    if(!Masked)
+    if(likely(!Masked))
     fPtrs[tid].arithmeticPtr(tid,PHSUBW);
 }
 VOID PIN_FAST_ANALYSIS_CALL IndirectArithmeticSingle7(THREADID tid){
-    if(!Masked)
+    if(likely(!Masked))
     fPtrs[tid].arithmeticPtr(tid,MUL);
 }
 VOID PIN_FAST_ANALYSIS_CALL IndirectArithmeticSingle8(THREADID tid){
-    if(!Masked)
+    if(likely(!Masked))
     fPtrs[tid].arithmeticPtr(tid,PHSUBSW);
 }
 VOID PIN_FAST_ANALYSIS_CALL IndirectArithmeticSingle9(THREADID tid){
-    if(!Masked)
+    if(likely(!Masked))
     fPtrs[tid].arithmeticPtr(tid,HSUBPS);
 }
 VOID PIN_FAST_ANALYSIS_CALL IndirectArithmeticSingle11(THREADID tid){
-    if(!Masked)
+    if(likely(!Masked))
     fPtrs[tid].arithmeticPtr(tid,FIMUL);
 }
 VOID PIN_FAST_ANALYSIS_CALL IndirectArithmeticSingle12(THREADID tid){
-    if(!Masked)
+    if(likely(!Masked))
     fPtrs[tid].arithmeticPtr(tid,DPPD);
 }
 VOID PIN_FAST_ANALYSIS_CALL IndirectArithmeticSingle35(THREADID tid){
-    if(!Masked)
+    if(likely(!Masked))
     fPtrs[tid].arithmeticPtr(tid,IDIV);
 }
 VOID PIN_FAST_ANALYSIS_CALL IndirectArithmeticSingle62(THREADID tid){
-    if(!Masked)
+    if(likely(!Masked))
     fPtrs[tid].arithmeticPtr(tid,DIVSD);
 }
 VOID PIN_FAST_ANALYSIS_CALL IndirectArithmeticSingle125(THREADID tid){
-    if(!Masked)
+    if(likely(!Masked))
     fPtrs[tid].arithmeticPtr(tid,DIVPD);
 }
 //Non-simulation variants of analysis functions
@@ -763,7 +765,7 @@ VOID Routine(RTN rtn, VOID *v)
                        IARG_FUNCARG_ENTRYPOINT_VALUE, 2, IARG_FUNCARG_ENTRYPOINT_VALUE, 3,
                        IARG_FUNCARG_ENTRYPOINT_VALUE, 4, IARG_FUNCARG_ENTRYPOINT_VALUE, 5,
                        IARG_FUNCARG_ENTRYPOINT_VALUE, 6, IARG_FUNCARG_ENTRYPOINT_VALUE, 7,IARG_END);
-
+        RTN_InsertCall(rtn, IPOINT_AFTER, (AFUNPTR)ArgAfter, IARG_END);
 
     }
 
@@ -781,17 +783,9 @@ VOID Trace(TRACE trace, VOID *v) {
     }
     //Instruction instrumentation now here to ensure proper ordering
     for (BBL bbl = TRACE_BblHead(trace); BBL_Valid(bbl); bbl = BBL_Next(bbl)) {
-        if(INS_Valid(BBL_InsHead(bbl))&&RTN_Valid(INS_Rtn(BBL_InsHead(bbl))))
-            //outFile1<<((string)RTN_Name(INS_Rtn(BBL_InsHead(bbl))))<<std::endl;
         for (INS ins = BBL_InsHead(bbl); INS_Valid(ins); ins = INS_Next(ins)) {
+            Instruction(ins);
 
-            if(unlikely(RTN_Valid(INS_Rtn(ins))&&((string)RTN_Name(INS_Rtn(ins))).find("sgemm")!=std::string::npos)){
-                Instruction(ins);
-            }
-            else{
-                Masked = false;
-                Instruction(ins);
-            }
         }
     }
 }
