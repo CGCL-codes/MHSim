@@ -345,9 +345,7 @@ double NeuroSimSubArrayReadLatency(SubArray *subArray) {	// For 1 weighted sum t
 					double Cin = subArray->capCol + subArray->mux.capTgDrain * (2 + subArray->numColMuxed - 1) + subArray->readCircuit.capTgDrain + subArray->readCircuit.capPmosGate;
 					// the maximum read current
                     double Imax = subArray->numRow * subArray->cell.readVoltage / subArray->cell.resMemCellOn;
-                       // printf("Cin=%.5e Imax=%.5e \n",Cin,Imax);
 					subArray->cell.readPulseWidth = Cin * subArray->readCircuit.voltageIntThreshold / Imax * subArray->readCircuit.maxNumIntPerCycle;
-				    //printf("readPulseWidth=%.5e  Cin = %.4e  Imax = %.4e  readVoltage = %.4e  resMemCellOn = %.4e\n",subArray->cell.readPulseWidth, Cin, Imax,subArray->cell.readVoltage,subArray->cell.resMemCellOn);
                 } else {    // mode==OSCILLATION
 					double Cin = subArray->capCol + subArray->mux.capTgDrain * (2 + subArray->numColMuxed - 1) + subArray->readCircuit.capInvInput;
 					double Rmin = subArray->cell.resMemCellOn / subArray->numRow;
@@ -360,8 +358,6 @@ double NeuroSimSubArrayReadLatency(SubArray *subArray) {	// For 1 weighted sum t
 				if (subArray->shiftAddEnable) {
 					subArray->shiftAdd.CalculateLatency(subArray->numReadPulse);
 				}
-                //printf("wlDecoderOutput=%.7e blSwitchMatrix=%.7e readCircuit=%.7e subtractor=%.7e shiftAdd=%.7e\n",subArray->wlDecoderOutput.readLatency,
-                //       subArray->blSwitchMatrix.readLatency,subArray->readCircuit.readLatency,subArray->subtractor.readLatency,subArray->shiftAdd.readLatency);
 	
                 return 	subArray->wlDecoderOutput.readLatency +
 						subArray->blSwitchMatrix.readLatency +
@@ -387,9 +383,6 @@ double NeuroSimSubArrayReadLatency(SubArray *subArray) {	// For 1 weighted sum t
 				if (subArray->shiftAddEnable) {
 					subArray->shiftAdd.CalculateLatency(subArray->numReadPulse);
 				}
-
-                //printf("wlDecoderOutput=%.7e readCircuit=%.7e subtractor=%.7e shiftAdd=%.7e",subArray->wlDecoderOutput.readLatency,
-                //       subArray->readCircuit.readLatency,subArray->subtractor.readLatency,subArray->shiftAdd.readLatency);
 
 				return 	subArray->wlSwitchMatrix.readLatency +
 						subArray->readCircuit.readLatency +
@@ -581,9 +574,6 @@ double NeuroSimSubArrayReadEnergy(SubArray *subArray) {	// For 1 weighted sum ta
 				if (subArray->shiftAddEnable) {
 					subArray->shiftAdd.CalculatePower(subArray->numReadPulse);
 				}
-                //printf("wlDecoder = %.4e wlDecoderOutput = %.4e blSwitchMatrix = %.4e mux = %.4e muxDecoder = %.4e readCircuit = %.4e subtractor = %.4e shiftAdd = %.4e\n",subArray->wlDecoder.readDynamicEnergy,
-                //       subArray->wlDecoderOutput.readDynamicEnergy,subArray->blSwitchMatrix.readDynamicEnergy,subArray->mux.readDynamicEnergy,
-                //       subArray->muxDecoder.readDynamicEnergy,subArray->readCircuit.readDynamicEnergy,subArray->subtractor.readDynamicEnergy,subArray->shiftAdd.readDynamicEnergy);
 				return	subArray->wlDecoder.readDynamicEnergy +
 						    subArray->wlDecoderOutput.readDynamicEnergy +
 						    subArray->blSwitchMatrix.readDynamicEnergy +
@@ -682,7 +672,6 @@ double NeuroSimSubArrayWriteEnergy(SubArray *subArray, int numWriteOperationPerR
 }
 
 double NeuroSimSubArrayLeakagePower(SubArray *subArray) {
-    //printf("calculating the array leakage power");
 	if (subArray->cell.memCellType == Type::SRAM) {	// SRAM
 		subArray->wlDecoder.CalculatePower(1, 1);
 		subArray->precharger.CalculatePower(1, 1);
@@ -923,7 +912,6 @@ double NeuroSimNeuronReadLatency(SubArray *subArray, Adder& adder, Mux& mux, Row
 		mux.CalculateLatency(adder.rampOutput, dff.capTgDrain, 1);
 		muxDecoder.CalculateLatency(1e20, mux.capTgGateN * adder.numAdder, mux.capTgGateP * adder.numAdder, 1, 1);	// Don't care write
 		subtractor.CalculateLatency(1e20, mux.capTgDrain, 1);
-        //printf("mux = %.4e\n",mux.readLatency);
 	} 
     else 
     {	// No need for Mux and Mux decoder
@@ -958,7 +946,6 @@ double NeuroSimNeuronReadEnergy(SubArray *subArray, Adder& adder, Mux& mux, RowD
     else 
     {
 
-        printf("adder = %.4e mux = %.4e muxDecoder = %.4e dff = %.4e subtractor = %.4e \n",adder.readDynamicEnergy,mux.readDynamicEnergy,muxDecoder.readDynamicEnergy,dff.readDynamicEnergy,subtractor.readDynamicEnergy);
         return adder.readDynamicEnergy + mux.readDynamicEnergy + muxDecoder.readDynamicEnergy + dff.readDynamicEnergy + subtractor.readDynamicEnergy;
     }
     

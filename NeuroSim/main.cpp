@@ -57,7 +57,7 @@
 #include <math.h>
 #include <sys/time.h>
 
-#include "neuro/Memristor_CU.hpp"
+#include "GEMM/Memristor_CU.hpp"
 //#include <mcheck.h>
 extern "C" {
 #include <cblas.h>
@@ -68,62 +68,50 @@ using namespace std;
 
 
 int main() {
-
 //	mtrace();
     std::mt19937 gen;
 	gen.seed(0);
-
-
-
-
-
-
-
-
-	//memristor_mm(unsigned int M, unsigned int N, unsigned int K,
-	//				float alpha, float *A, float *B, float beta, float *C);
-	printf("RealDevice size = %d\n",sizeof(RealDevice));
-    //unsigned int M = 4096, N = 5, K = 9216;
-	
-    unsigned int M = 40, N = 5, K = 92;
-    float *A = new float[M*K], *B = new float[K*N], *C = new float[M*N], *D = new float[M*N], *F = new float[M*N], *G = new float[M*N];
-
-
+    unsigned int M = 20, N = 159, K = 25;
+    //unsigned int M = 4, N = 4, K = 3;
+    float *A = new float[M*K], *B = new float[K*N], *C = new float[M*N], *D = new float[M*N], *E = new float[M*N], *F = new float[M*N], *G = new float[M*N];
+    char comma;
     for(int i = 0 ; i < M*K; i++)
 	{
-		A[i] = i;
+        A[i] = (i+1)/K;
     }
 	for(int i = 0 ; i < K*N; i++)
 	{
-		B[i] = -2*i;
+        B[i] = i/K;
     }
 	for(int i = 0 ; i < M*N; i++)
 	{
 		C[i] = 0.;
 		D[i] = 0.;
 		F[i] = 0.;
+        E[i] = 0.;
 		G[i] = 0.;
 	}
-
-    struct timeval ss,s,e,mmmm;
-    struct timezone tz;
-    gettimeofday(&ss,&tz);
-
-	clock_t sc,mc,ec;
-    sc = clock();
-
-    gettimeofday(&ss,&tz);
-    Memristor_CU<RealDevice> *mcu = new Memristor_CU<RealDevice>(M,K,A,WMI,2,128,128,4);
-
-    gettimeofday(&s,&tz);
-    mcu->memristor_mm(B,N,F,1.,0.);
-    gettimeofday(&mmmm,&tz);
-    //mcu->ReadLatency();
-    //mcu->Energy(B,N);
-
-
+    float *A1 = new float[M*K], *B1 = new float[K*N], *B2 = new float[K*N];
+    for(int i = 0; i < K; i++)
+        for(int j = 0; j < N; j++)
+            B2[i*N + j] = B[i + j*K];
+	cblas_sgemm(CblasRowMajor, CblasNoTrans, CblasNoTrans, M, N, K, 1., A, K, B2,
+	      N, 0., C, N);
+    Memristor_CU<RealDevice> *mcu = new Memristor_CU<RealDevice>(M,K,A,WMI,2,128,128,8);
+    Memristor_CU<RealDevice> *mcu1 = new Memristor_CU<RealDevice>(N,K,B2,IMW,2,128,128,8);
+    mcu->memristor_mm(B2,N,F,1.,0.,16);
+    mcu1->memristor_mm(A,M,F,1.,0.,16);
+    mcu->memristor_mm(B,N,G,1.,0.,16);
+    mcu->ReadLatency(16);
+	mcu->Energy(B,N);
+    cblas_sgemm(CblasRowMajor, CblasNoTrans, CblasTrans, M, N, K, 1., A, K, B,
+	      K, 0., D, N);
 	cblas_sgemm(CblasRowMajor, CblasNoTrans, CblasNoTrans, M, N, K, 1., A, K, B,
-	      N, 0., D, N);
+	      N, 0., E, N);
+
+    for(int ii = 0 ; ii < 9; ii++){
+        printf("F = %.4e  D = %.4e  C = %.4e E = %.4e  G = %.4e \n", F[ii], D[ii], C[ii], E[ii], G[ii]);
+    }
 
     double writeLatency = 0.;
     for (int k = 0; k < K; ++k) {
@@ -132,102 +120,18 @@ int main() {
     printf("ReadLatency = %.5e   readEnergy = %.5e    writeLatency = %.5e  writeEnergy = %.5e\n",mcu->getLatency(),mcu->getReadEnergy(),writeLatency,mcu->getWriteEnergy());
 
 
-//	delete param;
-//	delete[] A;
-//	delete[] B;
+	delete[] A;
+	delete[] B;
+    delete[] A1;
+    delete[] B1;
+    delete[] B2;
 	delete[] D;
 	delete[] C;
 	delete[] F;
+    delete[] E;
 	delete[] G;
 
 	delete mcu;
-    	//Array *arrayIH1 = new Array(100, 400, 100);
-    	//arrayIH1->GetMaxCellReadCurrent(0,0);
-
-	/* Load in MNIST data */
-//	ReadTrainingDataFromFile("patch60000_train.txt", "label60000_train.txt");
-//	ReadTestingDataFromFile("patch10000_test.txt", "label10000_test.txt");
-//
-//	/* Initialization of synaptic array from input to hidden layer */
-//	//arrayIH->Initialization<IdealDevice>();
-//	arrayIH->Initialization<RealDevice>();
-//	//arrayIH->Initialization<MeasuredDevice>();
-//	//arrayIH->Initialization<SRAM>(param->numWeightBit);
-//	//arrayIH->Initialization<DigitalNVM>(param->numWeightBit,true);
-//
-//
-//	/* Initialization of synaptic array from hidden to output layer */
-//	//arrayHO->Initialization<IdealDevice>();
-//	arrayHO->Initialization<RealDevice>();
-//	//arrayHO->Initialization<MeasuredDevice>();
-//	//arrayHO->Initialization<SRAM>(param->numWeightBit);
-//	//arrayHO->Initialization<DigitalNVM>(param->numWeightBit,true);
-//
-//
-//	/* Initialization of NeuroSim synaptic cores */
-//	param->relaxArrayCellWidth = 0;
-//	NeuroSimSubArrayInitialize(subArrayIH, arrayIH, inputParameterIH, techIH, cellIH);
-//	param->relaxArrayCellWidth = 1;
-//	NeuroSimSubArrayInitialize(subArrayHO, arrayHO, inputParameterHO, techHO, cellHO);
-//	/* Calculate synaptic core area */
-//	NeuroSimSubArrayArea(subArrayIH);
-//	NeuroSimSubArrayArea(subArrayHO);
-//
-//	/* Calculate synaptic core standby leakage power */
-//	NeuroSimSubArrayLeakagePower(subArrayIH);
-//	NeuroSimSubArrayLeakagePower(subArrayHO);
-//
-//	/* Initialize the neuron peripheries */
-//	NeuroSimNeuronInitialize(subArrayIH, inputParameterIH, techIH, cellIH, adderIH, muxIH, muxDecoderIH, dffIH, subtractorIH);
-//	NeuroSimNeuronInitialize(subArrayHO, inputParameterHO, techHO, cellHO, adderHO, muxHO, muxDecoderHO, dffHO, subtractorHO);
-//	/* Calculate the area and standby leakage power of neuron peripheries below subArrayIH */
-//	double heightNeuronIH, widthNeuronIH;
-//	NeuroSimNeuronArea(subArrayIH, adderIH, muxIH, muxDecoderIH, dffIH, subtractorIH, &heightNeuronIH, &widthNeuronIH);
-//	double leakageNeuronIH = NeuroSimNeuronLeakagePower(subArrayIH, adderIH, muxIH, muxDecoderIH, dffIH, subtractorIH);
-//	/* Calculate the area and standby leakage power of neuron peripheries below subArrayHO */
-//	double heightNeuronHO, widthNeuronHO;
-//	NeuroSimNeuronArea(subArrayHO, adderHO, muxHO, muxDecoderHO, dffHO, subtractorHO, &heightNeuronHO, &widthNeuronHO);
-//	double leakageNeuronHO = NeuroSimNeuronLeakagePower(subArrayHO, adderHO, muxHO, muxDecoderHO, dffHO, subtractorHO);
-//
-//	/* Print the area of synaptic core and neuron peripheries */
-//	double totalSubArrayArea = subArrayIH->usedArea + subArrayHO->usedArea;
-//	double totalNeuronAreaIH = adderIH.area + muxIH.area + muxDecoderIH.area + dffIH.area + subtractorIH.area;
-//	double totalNeuronAreaHO = adderHO.area + muxHO.area + muxDecoderHO.area + dffHO.area + subtractorHO.area;
-//	printf("Total SubArray (synaptic core) area=%.4e m^2\n", totalSubArrayArea);
-//	printf("Total Neuron (neuron peripheries) area=%.4e m^2\n", totalNeuronAreaIH + totalNeuronAreaHO);
-//	printf("Total area=%.4e m^2\n", totalSubArrayArea + totalNeuronAreaIH + totalNeuronAreaHO);
-//
-//	/* Print the standby leakage power of synaptic core and neuron peripheries */
-//	printf("Leakage power of subArrayIH is : %.4e W\n", subArrayIH->leakage);
-//	printf("Leakage power of subArrayHO is : %.4e W\n", subArrayHO->leakage);
-//	printf("Leakage power of NeuronIH is : %.4e W\n", leakageNeuronIH);
-//	printf("Leakage power of NeuronHO is : %.4e W\n", leakageNeuronHO);
-//	printf("Total leakage power of subArray is : %.4e W\n", subArrayIH->leakage + subArrayHO->leakage);
-//	printf("Total leakage power of Neuron is : %.4e W\n", leakageNeuronIH + leakageNeuronHO);
-//
-//	/* Initialize weights and map weights to conductances for hardware implementation */
-//	WeightInitialize();
-//	if (param->useHardwareInTraining) { WeightToConductance(); }
-//
-//	srand(0);	// Pseudorandom number seed
-//
-//	ofstream mywriteoutfile;
-//	mywriteoutfile.open("my_log.csv");
-//
-//	for (int i=1; i<=param->totalNumEpochs/param->interNumEpochs; i++) {
-//        //cout << "Training Epoch : " << i << endl;
-//		Train(param->numTrainImagesPerEpoch, param->interNumEpochs,param->optimization_type);
-//		if (!param->useHardwareInTraining && param->useHardwareInTestingFF) { WeightToConductance(); }
-//		Validate();
-//		mywriteoutfile << i*param->interNumEpochs << ", " << (double)correct/param->numMnistTestImages*100 << endl;
-//
-//		printf("Accuracy at %d epochs is : %.2f%\n", i*param->interNumEpochs, (double)correct/param->numMnistTestImages*100);
-//		printf("\tRead latency=%.4e s\n", subArrayIH->readLatency + subArrayHO->readLatency);
-//		printf("\tWrite latency=%.4e s\n", subArrayIH->writeLatency + subArrayHO->writeLatency);
-//		printf("\tRead energy=%.4e J\n", arrayIH->readEnergy + subArrayIH->readDynamicEnergy + arrayHO->readEnergy + subArrayHO->readDynamicEnergy);
-//		printf("\tWrite energy=%.4e J\n", arrayIH->writeEnergy + subArrayIH->writeDynamicEnergy + arrayHO->writeEnergy + subArrayHO->writeDynamicEnergy);
-//	}
-//	printf("\n");
 	return 0;
 }
 

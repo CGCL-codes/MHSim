@@ -1,0 +1,731 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CMakeRunConfigurationManager" shouldGenerate="true" shouldDeleteObsolete="true">
+    <generated />
+  </component>
+  <component name="CMakeSettings">
+    <configurations>
+      <configuration PROFILE_NAME="Debug" CONFIG_NAME="Debug" />
+    </configurations>
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="39bdb4cd-82e7-4498-a146-7c95f273898b" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/.depend" beforeDir="false" afterPath="$PROJECT_DIR$/.depend" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Array.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Array.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Array.h" beforeDir="false" afterPath="$PROJECT_DIR$/Array.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Cell.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Cell.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Cell.h" beforeDir="false" afterPath="$PROJECT_DIR$/Cell.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Definition.h" beforeDir="false" afterPath="$PROJECT_DIR$/Definition.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/IO.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/IO.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MNIST_data.zip" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Mapping.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Mapping.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Mapping.h" beforeDir="false" afterPath="$PROJECT_DIR$/Mapping.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/NeuroSim.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/NeuroSim.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/NeuroSim.h" beforeDir="false" afterPath="$PROJECT_DIR$/NeuroSim.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/NeuroSim/ReadCircuit.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/NeuroSim/ReadCircuit.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/NeuroSim/RowDecoder.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/NeuroSim/RowDecoder.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/NeuroSim/SubArray.h" beforeDir="false" afterPath="$PROJECT_DIR$/NeuroSim/SubArray.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/NeuroSim/Technology.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/NeuroSim/Technology.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/NeuroSim/WLDecoderOutput.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/NeuroSim/WLDecoderOutput.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/NeuroSim/formula.h" beforeDir="false" afterPath="$PROJECT_DIR$/NeuroSim/formula.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Param.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Param.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Test.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Test.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Test.h" beforeDir="false" afterPath="$PROJECT_DIR$/Test.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Train.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Train.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Train.h" beforeDir="false" afterPath="$PROJECT_DIR$/Train.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/makefile" beforeDir="false" afterPath="$PROJECT_DIR$/makefile" afterDir="false" />
+    </list>
+    <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="ClangdSettings">
+    <option name="formatViaClangd" value="false" />
+  </component>
+  <component name="FileEditorManager">
+    <leaf SIDE_TABS_SIZE_LIMIT_KEY="375">
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/makefile">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="360">
+              <caret line="59" column="15" selection-start-line="59" selection-start-column="15" selection-end-line="59" selection-end-column="15" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/Array.h">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="1602">
+              <caret line="89" column="24" selection-start-line="89" selection-start-column="24" selection-end-line="89" selection-end-column="24" />
+              <folding>
+                <element signature="e#4699#4717#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/main.cpp">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="1260">
+              <caret line="263" column="21" selection-start-line="263" selection-start-column="21" selection-end-line="263" selection-end-column="21" />
+              <folding>
+                <marker date="1589875039551" expanded="true" signature="3075:3104" ph="..." />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/load.sh">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="126">
+              <caret line="7" selection-start-line="7" selection-end-line="7" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/Array.cpp">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="3204">
+              <caret line="178" column="18" selection-start-line="178" selection-start-column="18" selection-end-line="178" selection-end-column="18" />
+              <folding>
+                <element signature="e#2182#2202#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/neuro/Memristor_CU.h">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="2448">
+              <caret line="136" column="9" selection-start-line="136" selection-start-column="9" selection-end-line="136" selection-end-column="9" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/Cell.cpp">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="5436">
+              <caret line="302" column="32" selection-start-line="302" selection-start-column="32" selection-end-line="302" selection-end-column="32" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/Cell.h">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="4302">
+              <caret line="239" column="14" selection-start-line="239" selection-start-column="14" selection-end-line="239" selection-end-column="14" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/neuro/math_functions.h">
+          <provider selected="true" editor-type-id="text-editor" />
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/NeuroSim/SubArray.cpp">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="828">
+              <caret line="46" column="85" selection-start-line="46" selection-start-column="85" selection-end-line="46" selection-end-column="85" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+    </leaf>
+  </component>
+  <component name="FindInProjectRecents">
+    <findStrings>
+      <find>read</find>
+      <find>memristor</find>
+      <find>Initial</find>
+      <find>RealDevice::read</find>
+      <find>minConductance</find>
+      <find>1::::</find>
+      <find>1:::</find>
+      <find>CtoC</find>
+      <find>mcu1</find>
+      <find>1::</find>
+      <find>sigmaCtoC</find>
+      <find>size =</find>
+      <find>clkFreq</find>
+      <find>freq</find>
+      <find>getRead</find>
+      <find>currentSum</find>
+      <find>weight_mantissas</find>
+      <find>weight_mantissas1</find>
+      <find>weight_mantissas2</find>
+      <find>MM</find>
+      <find>KK</find>
+      <find>ReadCell</find>
+      <find>writeLatency</find>
+      <find>wLatency</find>
+      <find>if(new_weight == old_weight)</find>
+      <find>if(new_weight</find>
+      <find>numPulse</find>
+      <find>write</find>
+      <find>if (new_weight == old_weight);</find>
+      <find>re_</find>
+    </findStrings>
+    <replaceStrings>
+      <replace>current</replace>
+      <replace>(254+2*(cells*bits-1))</replace>
+      <replace>254+2*(cells*bits-1)+23</replace>
+      <replace>cells</replace>
+      <replace>254+(cells*bits-1)+23</replace>
+      <replace>//#pragma omp</replace>
+      <replace>ot == WMI</replace>
+      <replace>ot</replace>
+      <replace>mn[(int)(array_row * ceil((double)M/operands_per_row)) + array_col]-&gt;cell[row - array_row * row_size][(col - array_col * operands_per_row) * (cells) + b]</replace>
+      <replace>mp</replace>
+      <replace>long long</replace>
+      <replace>weight_mantissas</replace>
+      <replace>M</replace>
+      <replace>weight_mantissas1</replace>
+      <replace>K</replace>
+    </replaceStrings>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="IdeDocumentHistory">
+    <option name="CHANGED_PATHS">
+      <list>
+        <option value="$PROJECT_DIR$/NeuroSim/WLDecoderOutput.cpp" />
+        <option value="$PROJECT_DIR$/Param.cpp" />
+        <option value="$PROJECT_DIR$/m.cpp" />
+        <option value="$PROJECT_DIR$/neuro/matrix_mapping.cpp" />
+        <option value="$PROJECT_DIR$/neuro/math_functions.cpp" />
+        <option value="$PROJECT_DIR$/NeuroSim/Definition.cpp" />
+        <option value="$PROJECT_DIR$/Definition.cpp" />
+        <option value="$PROJECT_DIR$/IO.cpp" />
+        <option value="$PROJECT_DIR$/Definition.h" />
+        <option value="$PROJECT_DIR$/NeuroSim.h" />
+        <option value="$PROJECT_DIR$/NeuroSim.cpp" />
+        <option value="$PROJECT_DIR$/Train.cpp" />
+        <option value="$PROJECT_DIR$/Cell.h" />
+        <option value="$PROJECT_DIR$/neuro/float_helper.h" />
+        <option value="$PROJECT_DIR$/neuro/float_helper.cpp" />
+        <option value="$PROJECT_DIR$/makefile" />
+        <option value="$PROJECT_DIR$/NeuroSim/formula.h" />
+        <option value="$PROJECT_DIR$/Array.cpp" />
+        <option value="$PROJECT_DIR$/neuro/Memristor_CU.h" />
+        <option value="$PROJECT_DIR$/Array.h" />
+        <option value="$PROJECT_DIR$/neuro/Memristor_CU.hpp" />
+        <option value="$PROJECT_DIR$/Cell.cpp" />
+        <option value="$PROJECT_DIR$/main.cpp" />
+        <option value="$PROJECT_DIR$/load.sh" />
+      </list>
+    </option>
+  </component>
+  <component name="OCFindUsagesOptions" text="true" ivars="false" properties="true" derivedClasses="false" />
+  <component name="ProjectConfigurationFiles">
+    <option name="files">
+      <list>
+        <option value="$PROJECT_DIR$/.idea/Neuro.iml" />
+        <option value="$PROJECT_DIR$/.idea/misc.xml" />
+        <option value="$PROJECT_DIR$/.idea/modules.xml" />
+        <option value="$PROJECT_DIR$/.idea/vcs.xml" />
+      </list>
+    </option>
+  </component>
+  <component name="ProjectFrameBounds" extendedState="6">
+    <option name="x" value="292" />
+    <option name="y" value="24" />
+    <option name="width" value="1400" />
+    <option name="height" value="1028" />
+  </component>
+  <component name="ProjectView">
+    <navigator proportions="" version="1">
+      <foldersAlwaysOnTop value="true" />
+    </navigator>
+    <panes>
+      <pane id="ProjectPane">
+        <subPane>
+          <expand>
+            <path>
+              <item name="Neuro1" type="b2602c69:ProjectViewProjectNode" />
+              <item name="Neuro1" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="Neuro1" type="b2602c69:ProjectViewProjectNode" />
+              <item name="Neuro1" type="462c0819:PsiDirectoryNode" />
+              <item name="neuro" type="462c0819:PsiDirectoryNode" />
+            </path>
+          </expand>
+          <select />
+        </subPane>
+      </pane>
+      <pane id="Scope" />
+    </panes>
+  </component>
+  <component name="PropertiesComponent">
+    <property name="WebServerToolWindowFactoryState" value="false" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../../MLP_NeuroSim_V3.0" />
+    <property name="node.js.detected.package.eslint" value="true" />
+    <property name="node.js.detected.package.tslint" value="true" />
+    <property name="node.js.path.for.package.eslint" value="project" />
+    <property name="node.js.path.for.package.tslint" value="project" />
+    <property name="node.js.selected.package.eslint" value="(autodetect)" />
+    <property name="node.js.selected.package.tslint" value="(autodetect)" />
+    <property name="nodejs_interpreter_path.stuck_in_default_project" value="undefined stuck path" />
+    <property name="nodejs_npm_path_reset_for_default_project" value="true" />
+    <property name="nodejs_package_manager_path" value="npm" />
+  </component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$" />
+    </key>
+  </component>
+  <component name="RunDashboard">
+    <option name="ruleStates">
+      <list>
+        <RuleState>
+          <option name="name" value="ConfigurationTypeDashboardGroupingRule" />
+        </RuleState>
+        <RuleState>
+          <option name="name" value="StatusDashboardGroupingRule" />
+        </RuleState>
+      </list>
+    </option>
+  </component>
+  <component name="SvnConfiguration">
+    <configuration />
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="39bdb4cd-82e7-4498-a146-7c95f273898b" name="Default Changelist" comment="" />
+      <created>1565727604124</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1565727604124</updated>
+      <workItem from="1565727605875" duration="601000" />
+      <workItem from="1565777463709" duration="1382000" />
+      <workItem from="1566218889543" duration="25000" />
+      <workItem from="1573821791363" duration="7137000" />
+      <workItem from="1573899985833" duration="2215000" />
+      <workItem from="1573906368203" duration="17228000" />
+      <workItem from="1574126415202" duration="67497000" />
+      <workItem from="1574493824702" duration="8862000" />
+      <workItem from="1574511141162" duration="2903000" />
+      <workItem from="1574572405968" duration="5127000" />
+      <workItem from="1576062994120" duration="1262000" />
+      <workItem from="1576397096417" duration="117475000" />
+      <workItem from="1579499657414" duration="4881000" />
+      <workItem from="1579961748668" duration="619000" />
+      <workItem from="1580038793399" duration="1956000" />
+      <workItem from="1580392304486" duration="90021000" />
+      <workItem from="1581962090138" duration="599000" />
+      <workItem from="1582184774702" duration="599000" />
+      <workItem from="1582268379383" duration="502000" />
+      <workItem from="1582271841538" duration="1277000" />
+      <workItem from="1582365801738" duration="4620000" />
+      <workItem from="1582397354610" duration="3417000" />
+      <workItem from="1582468159631" duration="52000" />
+      <workItem from="1583242239880" duration="694000" />
+      <workItem from="1583337180281" duration="29041000" />
+      <workItem from="1584641356912" duration="61584000" />
+      <workItem from="1586021540868" duration="599000" />
+      <workItem from="1586113496543" duration="740000" />
+      <workItem from="1586859515048" duration="44853000" />
+      <workItem from="1587467130643" duration="32695000" />
+      <workItem from="1587844965063" duration="5630000" />
+      <workItem from="1588615624513" duration="3724000" />
+      <workItem from="1589094472807" duration="8829000" />
+      <workItem from="1589216746040" duration="13746000" />
+      <workItem from="1589391748898" duration="5655000" />
+      <workItem from="1590262971674" duration="3155000" />
+      <workItem from="1590606364642" duration="1201000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TimeTrackingManager">
+    <option name="totallyTimeSpent" value="552403000" />
+  </component>
+  <component name="ToolWindowManager">
+    <frame x="65" y="-4" width="1855" height="1084" extended-state="6" />
+    <layout>
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.29182878" />
+      <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
+      <window_info id="Favorites" order="2" side_tool="true" />
+      <window_info anchor="bottom" id="Message" order="0" />
+      <window_info anchor="bottom" id="Find" order="1" />
+      <window_info anchor="bottom" id="Run" order="2" />
+      <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
+      <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
+      <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
+      <window_info anchor="bottom" id="TODO" order="6" />
+      <window_info anchor="bottom" id="Database Changes" order="7" />
+      <window_info anchor="bottom" id="Version Control" order="8" weight="0.32987553" />
+      <window_info anchor="bottom" id="Event Log" order="9" side_tool="true" />
+      <window_info anchor="bottom" id="Terminal" order="10" visible="true" weight="0.29564315" />
+      <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
+      <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
+      <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
+      <window_info anchor="right" id="Database" order="3" />
+    </layout>
+    <layout-to-restore>
+      <window_info content_ui="combo" id="Project" order="0" weight="0.26403558" />
+      <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
+      <window_info id="Favorites" order="2" side_tool="true" />
+      <window_info anchor="bottom" id="Message" order="0" />
+      <window_info anchor="bottom" id="Find" order="1" />
+      <window_info anchor="bottom" id="Run" order="2" />
+      <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
+      <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
+      <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
+      <window_info anchor="bottom" id="TODO" order="6" />
+      <window_info anchor="bottom" id="Database Changes" order="7" />
+      <window_info anchor="bottom" id="Version Control" order="8" weight="0.32987553" />
+      <window_info anchor="bottom" id="Event Log" order="9" side_tool="true" />
+      <window_info active="true" anchor="bottom" id="Terminal" order="10" visible="true" weight="0.9605809" />
+      <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
+      <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
+      <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
+      <window_info anchor="right" id="Database" order="3" />
+    </layout-to-restore>
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="1" />
+  </component>
+  <component name="editorHistoryManager">
+    <entry file="file://$PROJECT_DIR$/NeuroSim/RowDecoder.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="774">
+          <caret line="47" column="6" selection-start-line="47" selection-start-column="6" selection-end-line="47" selection-end-column="6" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/NeuroSim/WLDecoderOutput.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="512">
+          <caret line="69" column="49" selection-start-line="69" selection-start-column="49" selection-end-line="69" selection-end-column="49" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/NeuroSim/RowDecoder.cpp">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/NeuroSim/Technology.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="204">
+          <caret line="50" column="9" selection-start-line="50" selection-start-column="9" selection-end-line="50" selection-end-column="9" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/NeuroSim/Technology.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="19101">
+          <caret line="1092" column="128" selection-start-line="1092" selection-start-column="123" selection-end-line="1092" selection-end-column="128" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/NeuroSim/InputParameter.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="342">
+          <caret line="43" column="6" selection-start-line="43" selection-start-column="6" selection-end-line="43" selection-end-column="6" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/NeuroSim/MemCell.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="169">
+          <caret line="64" column="239" selection-start-line="64" selection-start-column="239" selection-end-line="64" selection-end-column="239" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Test.h">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Test.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="537">
+          <caret line="101" column="25" selection-start-line="101" selection-start-column="25" selection-end-line="101" selection-end-column="25" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/neuro/matrix_mapping.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="324">
+          <caret line="18" column="20" selection-start-line="18" selection-start-column="20" selection-end-line="18" selection-end-column="20" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/my_log.csv">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/m.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="252">
+          <caret line="14" selection-start-line="14" selection-end-line="14" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/IO.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-350" />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Definition.cpp" />
+    <entry file="file://$PROJECT_DIR$/IO.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="316">
+          <caret line="61" column="57" selection-start-line="61" selection-start-column="57" selection-end-line="61" selection-end-column="57" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Mapping.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-8">
+          <caret line="20" column="3" selection-start-line="20" selection-start-column="3" selection-end-line="20" selection-end-column="3" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/neuro/math_functions.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="180">
+          <caret line="10" column="24" selection-start-line="10" selection-start-column="24" selection-end-line="10" selection-end-column="24" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/neuro/matrix_mapping.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="180">
+          <caret line="10" column="9" selection-start-line="10" selection-start-column="9" selection-end-line="10" selection-end-column="9" />
+          <folding>
+            <element signature="e#149#169#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/.depend">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/.cproject">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Mapping.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1404">
+          <caret line="78" column="7" selection-start-line="78" selection-start-column="7" selection-end-line="78" selection-end-column="7" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/NeuroSim/VoltageSenseAmp.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="990">
+          <caret line="59" column="58" selection-start-line="59" selection-start-column="58" selection-end-line="59" selection-end-column="58" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/NeuroSim/VoltageSenseAmp.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1818">
+          <caret line="101" column="77" selection-start-line="101" selection-start-column="77" selection-end-line="101" selection-end-column="77" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/formula.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="382">
+          <caret line="44" column="7" selection-start-line="44" selection-start-column="7" selection-end-line="44" selection-end-column="7" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/formula.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="473">
+          <caret line="61" column="17" selection-start-line="61" selection-start-column="17" selection-end-line="61" selection-end-column="17" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/neuro/float_helper.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="270">
+          <caret line="15" column="9" selection-start-line="15" selection-start-column="9" selection-end-line="15" selection-end-column="18" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/neuro/float_helper.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="414">
+          <caret line="23" column="18" selection-start-line="23" selection-start-column="18" selection-end-line="23" selection-end-column="18" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Train.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="486">
+          <caret line="259" column="88" lean-forward="true" selection-start-line="259" selection-start-column="88" selection-end-line="259" selection-end-column="88" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Definition.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="275">
+          <caret line="120" column="20" lean-forward="true" selection-start-line="120" selection-start-column="20" selection-end-line="120" selection-end-column="20" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/NeuroSim.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="455">
+          <caret line="61" column="29" selection-start-line="61" selection-start-column="5" selection-end-line="61" selection-end-column="29" />
+          <folding>
+            <element signature="e#2223#2259#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/NeuroSim.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="16290">
+          <caret line="905" column="106" selection-start-line="905" selection-start-column="106" selection-end-line="905" selection-end-column="106" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/NeuroSim/DFF.h">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/NeuroSim/DFF.cpp">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/NeuroSim/Subtractor.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="720">
+          <caret line="40" selection-start-line="40" selection-end-line="40" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/NeuroSim/Subtractor.cpp">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/NeuroSim/SubArray.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="828">
+          <caret line="66" column="32" selection-start-line="66" selection-start-column="32" selection-end-line="66" selection-end-column="32" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/NeuroSim/FunctionUnit.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="738">
+          <caret line="41" column="6" selection-start-line="41" selection-start-column="6" selection-end-line="41" selection-end-column="6" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Param.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1206">
+          <caret line="67" column="74" selection-start-line="67" selection-start-column="74" selection-end-line="67" selection-end-column="74" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Param.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1710">
+          <caret line="95" column="17" selection-start-line="95" selection-start-column="17" selection-end-line="95" selection-end-column="17" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/NeuroSim/formula.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="756">
+          <caret line="42" column="15" selection-start-line="42" selection-start-column="15" selection-end-line="42" selection-end-column="15" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/neuro/Memristor_CU.hpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="117">
+          <caret line="960" column="29" lean-forward="true" selection-start-line="960" selection-start-column="29" selection-end-line="960" selection-end-column="29" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/makefile">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="360">
+          <caret line="59" column="15" selection-start-line="59" selection-start-column="15" selection-end-line="59" selection-end-column="15" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Array.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1602">
+          <caret line="89" column="24" selection-start-line="89" selection-start-column="24" selection-end-line="89" selection-end-column="24" />
+          <folding>
+            <element signature="e#4699#4717#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/load.sh">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="126">
+          <caret line="7" selection-start-line="7" selection-end-line="7" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Array.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="3204">
+          <caret line="178" column="18" selection-start-line="178" selection-start-column="18" selection-end-line="178" selection-end-column="18" />
+          <folding>
+            <element signature="e#2182#2202#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/neuro/Memristor_CU.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="2448">
+          <caret line="136" column="9" selection-start-line="136" selection-start-column="9" selection-end-line="136" selection-end-column="9" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Cell.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="5436">
+          <caret line="302" column="32" selection-start-line="302" selection-start-column="32" selection-end-line="302" selection-end-column="32" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Cell.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="4302">
+          <caret line="239" column="14" selection-start-line="239" selection-start-column="14" selection-end-line="239" selection-end-column="14" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/neuro/math_functions.h">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/NeuroSim/SubArray.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="828">
+          <caret line="46" column="85" selection-start-line="46" selection-start-column="85" selection-end-line="46" selection-end-column="85" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/main.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1260">
+          <caret line="263" column="21" selection-start-line="263" selection-start-column="21" selection-end-line="263" selection-end-column="21" />
+          <folding>
+            <marker date="1589875039551" expanded="true" signature="3075:3104" ph="..." />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+  </component>
+</project>

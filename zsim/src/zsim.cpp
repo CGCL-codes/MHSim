@@ -59,9 +59,9 @@
 #include "stats.h"
 #include "trace_driver.h"
 #include "virt/virt.h"
-#include "MHSim/chip.h"
 #include "MHSim/tile.h"
 #include <mutex>
+#include "MHSim/selector.h"
 
 //#include <signal.h> //can't include this, conflicts with PIN's
 
@@ -94,8 +94,6 @@ INT32 Usage() {
     return -1;
 }
 
-uint64_t ccount = 0;
-
 /* Global Variables */
 
 GlobSimInfo* zinfo;
@@ -107,11 +105,9 @@ Address procMask;
 std::mutex tidmutex;
 THREADID ttid = 0;
 
-//template <class memoryType>
-//class Chip;
+bool* Masked;
+bool USE_MEMRISTOR;
 static ProcessTreeNode* procTreeNode;
-//extern Chip<RealDevice> *chip;
-bool Masked = false;
 
 //tid to cid translation
 #define INVALID_CID ((uint32_t)-1)
@@ -121,8 +117,6 @@ static uint32_t cids[MAX_THREADS];
 
 // Per TID core pointers (TODO: phase out cid/tid state --- this is enough)
 Core* cores[MAX_THREADS];
-
-void switchINS(INS ins);
 
 static inline void clearCid(uint32_t tid) {
     assert(tid < MAX_THREADS);
@@ -146,7 +140,6 @@ uint32_t getCid(uint32_t tid) {
     return cid;
 }
 
-ofstream outFile,outFile1;
 //ArithmeticIns ains;
 typedef struct RtnCount
 {
@@ -159,61 +152,90 @@ typedef struct RtnCount
     struct RtnCount * _next;
 } RTN_COUNT;
 
-// Linked list of instruction counts for each routine
-RTN_COUNT * RtnList = 0;
-
-VOID ArgAfter(){
-    Masked = false;
-}
+Selector selector;
 
 
+uint64_t nnn = 0, used_m = 0;
+VOID Arg3Before(CONTEXT *ctxt, ADDRINT RowMajor, ADDRINT transA, ADDRINT transB, ADDRINT M, ADDRINT N, ADDRINT K, ADDRINT A1, ADDRINT B1, ADDRINT C)
+{
 //  cblas_sgemm(CblasRowMajor, TransA, TransB, M, N, K, alpha, A, lda, B,
 //      ldb, beta, C, N);
-VOID Arg3Before(CONTEXT *ctxt, ADDRINT transA, ADDRINT transB, ADDRINT M, ADDRINT N, ADDRINT K, ADDRINT A1, ADDRINT B1, ADDRINT C)
-{
 
     //Since IARG_FUNCARG_ENTRYPOINT_VALUE cannot converts the floating point arguments, we used xmm register to get the values.
     //These codes are copyed and modified from Pin: SimpleExamples/regval.cpp
     PIN_REGISTER alpha,beta;
     PIN_GetContextRegval(ctxt, (REG)REG_XMM_BASE, reinterpret_cast<UINT8*>(&alpha));
     PIN_GetContextRegval(ctxt, (REG)((int)REG_XMM_BASE+1), reinterpret_cast<UINT8*>(&beta));
+    // if(reinterpret_cast<float *>(&beta)[0] == -1. || reinterpret_cast<float *>(&beta)[0] == 1.)
+    //     return;
 
-
-//    std::cout<<std::hex<<"Address M = "<< M<<"    N = "<<N<<"    K = "<<K <<
+//    std::cout<<"Address M = "<< M<<"    N = "<<N<<"    K = "<<K <<
 //             "   alpha = "<<reinterpret_cast<float *>(&alpha)[0]<<"    A = "<< A1 <<"    B = "<< B1 <<
 //             "      beta = "<<reinterpret_cast<float *>(&beta)[0] << "     C = "<< C << std::endl ;//<<"    beta = "<< *reinterpret_cast<float*>(beta) << std::endl;
 
 
-    if(K!=1)
-    {
-        Masked = false;
-        Address A = reinterpret_cast<Address>(A1),B = reinterpret_cast<Address>(B1);
-        bool transpose = false;
-        if(static_cast<int>(transB) == 112)
-            transpose = true;
+
+    bool transpose = false, useMBA = false;;
+    if(static_cast<int>(transB) == 112)
+        transpose = true;
+    //float *W, *I; // Transfer WMI to IMW;
 
 
-        Memristor_CU<RealDevice> *mcu;
-        if(transpose) {
-            Masked = zinfo->chip->memristor_mm(B,A,C,N,M,K);
+    nnn += N*K*M;
+    //printf("N = %d K = %d M = %d \n", N, K, M);
+    uint64_t tmp = used_m;
+    if(transpose){
 
 
-        }
-        else
-        {
-            Masked = zinfo->chip->memristor_mm(A,B,C,M,N,K);
-        }
 
+        useMBA = selector.trade_off(N, K, M, zinfo->freqMHz << 20);
+        if(useMBA)
+            used_m += ceil(K * 1.0 / 128)*ceil(N * 8.0 / 128);
+        // else
+        //     printf("M K N = %d %d %d \n", M, K, N);
     }else{
-        Masked = false;
+        useMBA = selector.trade_off(M, K, N, zinfo->freqMHz << 20);
+        if(useMBA)
+            used_m += ceil(K*1.0/128)*ceil(M*8.0/128) * N;
+        // else
+        //     printf("M K N = %d %d %d \n", M, K, N);
     }
 
 
 
 
 
-}
+    //if(K != 1)
+    //printf("M K N = %d %d %d  require XB = %d\n", M, K, N, used_m - tmp);
+    if(USE_MEMRISTOR){
+        if(useMBA)
+        {
+            //printf("1111111\n");
 
+            Address A = reinterpret_cast<Address>(A1), B = reinterpret_cast<Address>(B1);
+
+            Memristor_CU<RealDevice> *mcu;
+            if(transpose) {
+                *Masked = zinfo->chip->memristor_mm(B,A,C,N,M,K);
+
+            }
+            else
+            {
+                *Masked = zinfo->chip->memristor_mm(A,B,C,M,N,K);
+            }
+            //printf("bbbb  %d \n", *Masked);
+
+        }else{
+            *Masked = false;
+        }
+
+    }
+
+
+}
+VOID ArgAfter(){
+    *Masked = false;
+}
 
 
 
@@ -251,17 +273,18 @@ VOID FFThread(VOID* arg);
 InstrFuncPtrs fPtrs[MAX_THREADS] ATTR_LINE_ALIGNED; //minimize false sharing
 
 VOID PIN_FAST_ANALYSIS_CALL IndirectLoadSingle(THREADID tid, ADDRINT addr) {
-    if(likely(!Masked))
+    if(!*Masked)
     fPtrs[tid].loadPtr(tid, addr);
 }
 
 VOID PIN_FAST_ANALYSIS_CALL IndirectStoreSingle(THREADID tid, ADDRINT addr) {
-    if(likely(!Masked))
+    if(!*Masked)
     fPtrs[tid].storePtr(tid, addr);
 }
-
+uint64_t lt = 0, lt1 = 0, bcnt = 0;
+ADDRINT bblad;
 VOID PIN_FAST_ANALYSIS_CALL IndirectBasicBlock(THREADID tid, ADDRINT bblAddr, BblInfo* bblInfo) {
-    if(likely(!Masked))
+    if(!*Masked)
     fPtrs[tid].bblPtr(tid, bblAddr, bblInfo);
 }
 
@@ -270,62 +293,16 @@ VOID PIN_FAST_ANALYSIS_CALL IndirectRecordBranch(THREADID tid, ADDRINT branchPc,
 }
 
 VOID PIN_FAST_ANALYSIS_CALL IndirectPredLoadSingle(THREADID tid, ADDRINT addr, BOOL pred) {
-    if(likely(!Masked))
+    if(!*Masked)
     fPtrs[tid].predLoadPtr(tid, addr, pred);
 }
 
 VOID PIN_FAST_ANALYSIS_CALL IndirectPredStoreSingle(THREADID tid, ADDRINT addr, BOOL pred) {
-    if(likely(!Masked))
+    if(!*Masked)
     fPtrs[tid].predStorePtr(tid, addr, pred);
 }
-VOID PIN_FAST_ANALYSIS_CALL IndirectArithmeticSingle1(THREADID tid){
-    if(likely(!Masked))
-    fPtrs[tid].arithmeticPtr(tid,ADCX);
-}
-VOID PIN_FAST_ANALYSIS_CALL IndirectArithmeticSingle4(THREADID tid){
-    if(likely(!Masked))
-    fPtrs[tid].arithmeticPtr(tid,PHADDD);
-}
-VOID PIN_FAST_ANALYSIS_CALL IndirectArithmeticSingle5(THREADID tid){
-    if(likely(!Masked))
-    fPtrs[tid].arithmeticPtr(tid,PMULUDQ);
-}
-VOID PIN_FAST_ANALYSIS_CALL IndirectArithmeticSingle6(THREADID tid){
-    if(likely(!Masked))
-    fPtrs[tid].arithmeticPtr(tid,PHSUBW);
-}
-VOID PIN_FAST_ANALYSIS_CALL IndirectArithmeticSingle7(THREADID tid){
-    if(likely(!Masked))
-    fPtrs[tid].arithmeticPtr(tid,MUL);
-}
-VOID PIN_FAST_ANALYSIS_CALL IndirectArithmeticSingle8(THREADID tid){
-    if(likely(!Masked))
-    fPtrs[tid].arithmeticPtr(tid,PHSUBSW);
-}
-VOID PIN_FAST_ANALYSIS_CALL IndirectArithmeticSingle9(THREADID tid){
-    if(likely(!Masked))
-    fPtrs[tid].arithmeticPtr(tid,HSUBPS);
-}
-VOID PIN_FAST_ANALYSIS_CALL IndirectArithmeticSingle11(THREADID tid){
-    if(likely(!Masked))
-    fPtrs[tid].arithmeticPtr(tid,FIMUL);
-}
-VOID PIN_FAST_ANALYSIS_CALL IndirectArithmeticSingle12(THREADID tid){
-    if(likely(!Masked))
-    fPtrs[tid].arithmeticPtr(tid,DPPD);
-}
-VOID PIN_FAST_ANALYSIS_CALL IndirectArithmeticSingle35(THREADID tid){
-    if(likely(!Masked))
-    fPtrs[tid].arithmeticPtr(tid,IDIV);
-}
-VOID PIN_FAST_ANALYSIS_CALL IndirectArithmeticSingle62(THREADID tid){
-    if(likely(!Masked))
-    fPtrs[tid].arithmeticPtr(tid,DIVSD);
-}
-VOID PIN_FAST_ANALYSIS_CALL IndirectArithmeticSingle125(THREADID tid){
-    if(likely(!Masked))
-    fPtrs[tid].arithmeticPtr(tid,DIVPD);
-}
+
+
 //Non-simulation variants of analysis functions
 
 // Join variants: Call join on the next instrumentation poin and return to analysis code
@@ -725,16 +702,6 @@ VOID Instruction(INS ins) {
         INS_InsertCall(ins, IPOINT_AFTER, (AFUNPTR) FakeRDTSCPost, IARG_THREAD_ID, IARG_REG_REFERENCE, REG_EAX, IARG_REG_REFERENCE, REG_EDX, IARG_END);
     }
 
-
-    if(INS_Category(ins) == XED_CATEGORY_SSE || INS_Category(ins) == XED_CATEGORY_BINARY || INS_Category(ins) == XED_CATEGORY_MMX ||
-       INS_Category(ins) == XED_CATEGORY_X87_ALU || INS_Category(ins) == XED_CATEGORY_BDW || INS_Category(ins) == XED_CATEGORY_BMI2){
-
-        switchINS(ins);
-    }
-
-
-
-    //Must run for every instructio32_   VdsoInstrument(ins);
 }
 
 
@@ -750,24 +717,129 @@ VOID Routine(RTN rtn, VOID *v)
 
 
     RTN_Open(rtn);
-
-
-
-    if(rc->_name.find("caffe_cpu_gemmIf")!=std::string::npos)
+    if(rc->_name.find("cblas_sgemm")!=std::string::npos)
     {
-        //  caffe_cpu_gemm<float>(const CBLAS_TRANSPOSE TransA,
-        //    const CBLAS_TRANSPOSE TransB, const int M, const int N, const int K,
-        //    consst float alpha, const float* A, const float* B, const float beta,
-        //    float* C)
-
-        RTN_InsertCall(rtn, IPOINT_BEFORE, (AFUNPTR)Arg3Before, IARG_CONTEXT,
-                       IARG_FUNCARG_ENTRYPOINT_VALUE, 0, IARG_FUNCARG_ENTRYPOINT_VALUE, 1,
-                       IARG_FUNCARG_ENTRYPOINT_VALUE, 2, IARG_FUNCARG_ENTRYPOINT_VALUE, 3,
-                       IARG_FUNCARG_ENTRYPOINT_VALUE, 4, IARG_FUNCARG_ENTRYPOINT_VALUE, 5,
-                       IARG_FUNCARG_ENTRYPOINT_VALUE, 6, IARG_FUNCARG_ENTRYPOINT_VALUE, 7,IARG_END);
+        RTN_InsertCall(rtn, IPOINT_BEFORE, (AFUNPTR)Arg3Before, IARG_CONTEXT, IARG_FUNCARG_ENTRYPOINT_VALUE, 0,
+                        IARG_FUNCARG_ENTRYPOINT_VALUE, 1, IARG_FUNCARG_ENTRYPOINT_VALUE, 2,
+                        IARG_FUNCARG_ENTRYPOINT_VALUE, 3, IARG_FUNCARG_ENTRYPOINT_VALUE, 4, 
+                        IARG_FUNCARG_ENTRYPOINT_VALUE, 5, IARG_FUNCARG_ENTRYPOINT_VALUE, 6,
+                        IARG_FUNCARG_ENTRYPOINT_VALUE, 8, IARG_FUNCARG_ENTRYPOINT_VALUE, 10, IARG_END);
         RTN_InsertCall(rtn, IPOINT_AFTER, (AFUNPTR)ArgAfter, IARG_END);
-
     }
+
+    // if(!USE_MEMRISTOR){
+
+    //     if(rc->_name.find("forward_cpu_gemm")!=std::string::npos)
+    //     {
+    //         RTN_InsertCall(rtn, IPOINT_BEFORE, (AFUNPTR)ConvBefore, IARG_CONTEXT, IARG_END);
+    //         RTN_InsertCall(rtn, IPOINT_AFTER, (AFUNPTR)ConvAfter, IARG_END);
+    //     }
+
+
+
+    //     if(rc->_name.find("ReLULayerIfE11Forward")!=std::string::npos)
+    //     {
+    //         //  caffe_cpu_gemm<float>(const CBLAS_TRANSPOSE TransA,
+    //         //    const CBLAS_TRANSPOSE TransB, const int M, const int N, const int K,
+    //         //    consst float alpha, const float* A, const float* B, const float beta,
+    //         //    float* C)
+
+    //         RTN_InsertCall(rtn, IPOINT_BEFORE, (AFUNPTR)ReLUBefore, IARG_CONTEXT,IARG_END);
+
+    //         RTN_InsertCall(rtn, IPOINT_AFTER, (AFUNPTR)ReLUAfter, IARG_END);
+
+
+    //     }
+    //     if(rc->_name.find("TanHLayerIfE11Forward")!=std::string::npos)
+    //     {
+    //         //  caffe_cpu_gemm<float>(const CBLAS_TRANSPOSE TransA,
+    //         //    const CBLAS_TRANSPOSE TransB, const int M, const int N, const int K,
+    //         //    consst float alpha, const float* A, const float* B, const float beta,
+    //         //    float* C)
+
+    //         RTN_InsertCall(rtn, IPOINT_BEFORE, (AFUNPTR)TanHBefore, IARG_CONTEXT,IARG_END);
+
+    //         RTN_InsertCall(rtn, IPOINT_AFTER, (AFUNPTR)TanHAfter, IARG_END);
+    //     }
+    //     if(rc->_name.find("LRNLayerIfE11Forward")!=std::string::npos)
+    //     {
+    //         //  caffe_cpu_gemm<float>(const CBLAS_TRANSPOSE TransA,
+    //         //    const CBLAS_TRANSPOSE TransB, const int M, const int N, const int K,
+    //         //    consst float alpha, const float* A, const float* B, const float beta,
+    //         //    float* C)
+
+    //         RTN_InsertCall(rtn, IPOINT_BEFORE, (AFUNPTR)LRNBefore, IARG_CONTEXT,IARG_END);
+
+    //         RTN_InsertCall(rtn, IPOINT_AFTER, (AFUNPTR)LRNAfter, IARG_END);
+    //     }
+    //     if(rc->_name.find("PoolingLayerIfE11Forward")!=std::string::npos)
+    //     {
+    //         //  caffe_cpu_gemm<float>(const CBLAS_TRANSPOSE TransA,
+    //         //    const CBLAS_TRANSPOSE TransB, const int M, const int N, const int K,
+    //         //    consst float alpha, const float* A, const float* B, const float beta,
+    //         //    float* C)
+
+    //         RTN_InsertCall(rtn, IPOINT_BEFORE, (AFUNPTR)PoolingBefore, IARG_CONTEXT,IARG_END);
+
+    //         RTN_InsertCall(rtn, IPOINT_AFTER, (AFUNPTR)PoolingAfter, IARG_END);
+    //     }
+    //     if(rc->_name.find("PowerLayerIfE11Forward")!=std::string::npos)
+    //     {
+    //         //  caffe_cpu_gemm<float>(const CBLAS_TRANSPOSE TransA,
+    //         //    const CBLAS_TRANSPOSE TransB, const int M, const int N, const int K,
+    //         //    consst float alpha, const float* A, const float* B, const float beta,
+    //         //    float* C)
+
+    //         RTN_InsertCall(rtn, IPOINT_BEFORE, (AFUNPTR)PowerBefore, IARG_CONTEXT,IARG_END);
+
+    //         RTN_InsertCall(rtn, IPOINT_AFTER, (AFUNPTR)PowerAfter, IARG_END);
+    //     }
+    //     if(rc->_name.find("mark_pow")!=std::string::npos)
+    //     {
+
+    //         RTN_InsertCall(rtn, IPOINT_BEFORE, (AFUNPTR)PowerAfter, IARG_CONTEXT,IARG_END);
+    //     }
+    //     if(rc->_name.find("mark_lrn")!=std::string::npos)
+    //     {
+
+    //         RTN_InsertCall(rtn, IPOINT_BEFORE, (AFUNPTR)LRNAfter, IARG_CONTEXT,IARG_END);
+    //     }
+    //     if(rc->_name.find("mark_batch")!=std::string::npos)
+    //     {
+
+    //         RTN_InsertCall(rtn, IPOINT_BEFORE, (AFUNPTR)BatchAfter, IARG_CONTEXT,IARG_END);
+    //     }
+
+    //     //InnerProductLayer
+    //     if(rc->_name.find("InnerProductLayerIfE11Forward")!=std::string::npos)
+    //     {
+
+    //         RTN_InsertCall(rtn, IPOINT_BEFORE, (AFUNPTR)InnerBefore, IARG_CONTEXT,IARG_END);
+
+    //         RTN_InsertCall(rtn, IPOINT_AFTER, (AFUNPTR)InnerAfter, IARG_END);
+
+
+    //     }
+
+
+    //     //BatchNormLayer
+
+    //     if(rc->_name.find("BatchNormLayerIfE11Forward")!=std::string::npos)
+    //     {
+    //         RTN_InsertCall(rtn, IPOINT_BEFORE, (AFUNPTR)BatchBefore, IARG_CONTEXT,IARG_END);
+
+    //     }
+
+    //     if(rc->_name.find("EltwiseLayerIfE11Forward")!=std::string::npos)
+    //     {
+
+    //         RTN_InsertCall(rtn, IPOINT_BEFORE, (AFUNPTR)EltwiseBefore, IARG_CONTEXT,IARG_END);
+
+    //         RTN_InsertCall(rtn, IPOINT_AFTER, (AFUNPTR)EltwiseAfter, IARG_END);
+
+
+    //     }
+    // }
 
     RTN_Close(rtn);
 }
@@ -785,7 +857,6 @@ VOID Trace(TRACE trace, VOID *v) {
     for (BBL bbl = TRACE_BblHead(trace); BBL_Valid(bbl); bbl = BBL_Next(bbl)) {
         for (INS ins = BBL_InsHead(bbl); INS_Valid(ins); ins = INS_Next(ins)) {
             Instruction(ins);
-
         }
     }
 }
@@ -1254,7 +1325,13 @@ VOID AfterForkInChild(THREADID tid, const CONTEXT* ctxt, VOID * arg) {
 VOID Fini(int code, VOID * v) {
     info("Finished, code %d", code);
     zinfo->chip->wait_for_end();
-    zinfo->chip->printAll();
+    //printf("cpu mvm = %lld  ooocore = %lld  MVM BBL called = %d    used_memristor = %d    %d  \n", nnn*3, lt, bcnt, used_m, lt1);
+    // for(int i = 0; i < zinfo->numCores; ++i){
+    //     printf("core %d: Init = %llu   MMM = %llu ReLU = %llu  TanH = %llu  LRN = %llu  Pooling = %llu  Power = %llu  Eltwise = %llu  Conv = %llu  Inner = %llu  Batch = %llu  %llu\n", i, 
+    //            InitCycles[i], MMMCycles[i], ReLUCycles[i],
+    //            TanHCycles[i], LRNCycles[i],
+    //            PoolingCycles[i], PowerCycles[i], EltwiseCycles[i], ConvCycles[i], InnerCycles[i], BatchNormCycles[i], zinfo->cores[i]->delay);
+    // }
     //NOTE: In fini, it appears that info() and writes to stdout in general won't work; warn() and stderr still work fine.
     SimEnd();
 }
@@ -1605,13 +1682,8 @@ static EXCEPT_HANDLING_RESULT InternalExceptionHandler(THREADID tid, EXCEPTION_I
 
 int main(int argc, char *argv[]) {
     PIN_InitSymbols();
-    for(int i = 0 ; i < argc; i++)
-        std::cout<<argv[i]<<" ";
-    std::cout<<std::endl;
     if (PIN_Init(argc, argv)) return Usage();
 
-
-    outFile.open("proccount.out");
 
     //Register an internal exception handler (ASAP, to catch segfaults in init)
     PIN_AddInternalExceptionHandler(InternalExceptionHandler, nullptr);
@@ -1641,11 +1713,13 @@ int main(int argc, char *argv[]) {
     bool masterProcess = false;
     if (procIdx == 0 && !gm_isready()) {  // process 0 can exec() without fork()ing first, so we must check gm_isready() to ensure we don't initialize twice
         masterProcess = true;
-        SimInit(KnobConfigFile.Value().c_str(), KnobOutputDir.Value().c_str(), KnobShmid.Value());
+        SimInit(KnobConfigFile.Value().c_str(), KnobOutputDir.Value().c_str(), KnobShmid.Value(), USE_MEMRISTOR);
     } else {
         while (!gm_isready()) usleep(1000);  // wait till proc idx 0 initializes everything
         zinfo = static_cast<GlobSimInfo*>(gm_get_glob_ptr());
     }
+    Masked = &(zinfo->Masked);
+    *Masked = false;
 
     //If assertion below fails, use this to print maps
 #if 0
@@ -1659,7 +1733,6 @@ int main(int argc, char *argv[]) {
     //LibzsimAddrs sanity check: Ensure that they match across processes
     struct LibInfo libzsimAddrs;
     getLibzsimAddrs(&libzsimAddrs);
-    std::cout<<libzsimAddrs.textAddr<<std::endl;
     if (memcmp(&libzsimAddrs, &zinfo->libzsimAddrs, sizeof(libzsimAddrs)) != 0) {
         panic("libzsim.so address mismatch! text: %p != %p. Perform loader injection to homogenize offsets!", libzsimAddrs.textAddr, zinfo->libzsimAddrs.textAddr);
     }
@@ -1731,7 +1804,6 @@ int main(int argc, char *argv[]) {
     PIN_AddForkFunction(FPOINT_AFTER_IN_CHILD, AfterForkInChild, 0);
 
     RTN_AddInstrumentFunction(Routine, 0);
-
     //FFwd control
     //OK, screw it. Launch this on a separate thread, and forget about signals... the caller will set a shared memory var. PIN is hopeless with signal instrumentation on multithreaded processes!
     PIN_SpawnInternalThread(FFThread, nullptr, 64*1024, nullptr);
@@ -1754,149 +1826,4 @@ int main(int argc, char *argv[]) {
     return 0;
 }
 
-//analyse the opcode and add the op cycles
-void switchINS(INS ins){
-    ArithmeticIns type = static_cast<ArithmeticIns>(INS_Opcode(ins));
-    switch(type){
-        case ADD:
-        case ADOX:
-        case DEC:
-        case PADDB:
-        case PSUBB:
-        case PSUBD:
-        case PSUBQ:
-        case PSUBSB:
-        case PSUBSW:
-        case PSUBUSB:
-        case PSUBUSW:
-        case PSUBW:
-        case SBB:
-        case SUB:
-        case PADDD:
-        case PADDQ:
-        case PADDSB:
-        case PADDSW:
-        case PADDUSB:
-        case PADDUSW:
-        case PADDW:
-        case ADC:
-        case INC:
-        case ADCX:
-            INS_InsertCall(ins,IPOINT_BEFORE,(AFUNPTR)IndirectArithmeticSingle1,IARG_FAST_ANALYSIS_CALL,IARG_THREAD_ID,IARG_END);
-            break;//cycles = 1;break;
 
-        case MULSS:
-        case MULX:
-        case PMADDUBSW:
-        case PMADDWD:
-        case PMULLW:
-        case PHSUBD:
-        case PMULHRSW:
-        case PMULHUW:
-        case PMULHW:
-        case PHADDD:
-            INS_InsertCall(ins,IPOINT_BEFORE,(AFUNPTR)IndirectArithmeticSingle4,IARG_FAST_ANALYSIS_CALL,IARG_THREAD_ID,IARG_END);
-            ;break;//cycles = 4;break;
-
-        case ADDPS:
-        case ADDSD:
-        case ADDSS:
-        case ADDSUBPS:
-        case FADD:
-        case FADDP:
-        case FMUL:
-        case FMULP:
-        case FSUB:
-        case FSUBP:
-        case SUBPS:
-        case SUBSD:
-        case SUBSS:
-        case FSUBR:
-        case FSUBRP:
-        case MULPD:
-        case MULPS:
-        case MULSD:
-        case PMULDQ:
-        case PMULUDQ:
-            INS_InsertCall(ins,IPOINT_BEFORE,(AFUNPTR)IndirectArithmeticSingle5,IARG_FAST_ANALYSIS_CALL,IARG_THREAD_ID,IARG_END);
-            ;break;//cycles = 5;break;
-
-
-        case PHADDW:
-        case PHSUBW:
-            INS_InsertCall(ins,IPOINT_BEFORE,(AFUNPTR)IndirectArithmeticSingle6,IARG_FAST_ANALYSIS_CALL,IARG_THREAD_ID,IARG_END);
-            ;break;//cycles = 6;break;
-
-        case ADDPD:
-        case SUBPD:
-        case ADDSUBPD:
-        case IMUL:
-        case MUL:
-            INS_InsertCall(ins,IPOINT_BEFORE,(AFUNPTR)IndirectArithmeticSingle7,IARG_FAST_ANALYSIS_CALL,IARG_THREAD_ID,IARG_END);
-            ;break;//cycles = 7;break;
-
-
-        case PHADDSW:
-        case PHSUBSW:
-            INS_InsertCall(ins,IPOINT_BEFORE,(AFUNPTR)IndirectArithmeticSingle8,IARG_FAST_ANALYSIS_CALL,IARG_THREAD_ID,IARG_END);
-            ;break;//cycles = 8;break;
-
-
-        case HADDPD:
-        case HADDPS:
-        case HSUBPD:
-        case HSUBPS:
-            INS_InsertCall(ins,IPOINT_BEFORE,(AFUNPTR)IndirectArithmeticSingle9,IARG_FAST_ANALYSIS_CALL,IARG_THREAD_ID,IARG_END);
-            ;break;//cycles = 9;break;
-
-        case PMULLD:
-        case FIADD:
-        case FIMUL:
-            INS_InsertCall(ins,IPOINT_BEFORE,(AFUNPTR)IndirectArithmeticSingle11,IARG_FAST_ANALYSIS_CALL,IARG_THREAD_ID,IARG_END);
-            ;break;//cycles = 11;break;
-
-        case DPPS:
-        case DPPD:
-            INS_InsertCall(ins,IPOINT_BEFORE,(AFUNPTR)IndirectArithmeticSingle12,IARG_FAST_ANALYSIS_CALL,IARG_THREAD_ID,IARG_END);
-            ;break;//cycles = 12;break;
-
-
-
-
-
-        case DIV:
-        case DIVSS:
-        case FDIV:
-        case IDIV:
-
-            INS_InsertCall(ins,IPOINT_BEFORE,(AFUNPTR)IndirectArithmeticSingle35,IARG_FAST_ANALYSIS_CALL,IARG_THREAD_ID,IARG_END);
-            ;break;//cycles = 35;break;
-
-
-
-
-        case DIVPS:
-        case DIVSD:
-            INS_InsertCall(ins,IPOINT_BEFORE,(AFUNPTR)IndirectArithmeticSingle62,IARG_FAST_ANALYSIS_CALL,IARG_THREAD_ID,IARG_END);
-            ;break;//cycles = 62;break;
-
-
-
-
-
-
-
-        case DIVPD:
-            INS_InsertCall(ins,IPOINT_BEFORE,(AFUNPTR)IndirectArithmeticSingle125,IARG_FAST_ANALYSIS_CALL,IARG_THREAD_ID,IARG_END);
-            ;break;//cycles = 125;break;
-
-
-
-
-
-
-
-        default: ;
-    }
-
-}

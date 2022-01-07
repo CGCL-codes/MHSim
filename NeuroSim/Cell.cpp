@@ -53,7 +53,6 @@ std::normal_distribution<double>* IdealDevice::gaussian_dist = new std::normal_d
 std::normal_distribution<double>* RealDevice::gaussian_dist = new std::normal_distribution<double>(0, 0);
 std::normal_distribution<double>* RealDevice::gaussian_dist2 = new std::normal_distribution<double>(0, 0);
 std::normal_distribution<double>* RealDevice::gaussian_dist3 = new std::normal_distribution<double>(0, 0.035*(3.8462e-8-3.0769e-9));
-//std::normal_distribution<double>* MeasuredDevice::gaussian_dist = new std::normal_distribution<double>(0, 0.0289);
 std::normal_distribution<double>* DigitalNVM::gaussian_dist = gaussian_dist = new std::normal_distribution<double>(0, 0.25);
 std::normal_distribution<double>* IdealDevice::gaussian_dist_minConductance = new std::normal_distribution<double>(0,0);
 std::normal_distribution<double>* RealDevice::gaussian_dist_minConductance = new std::normal_distribution<double>(0, 0);
@@ -345,19 +344,19 @@ double AnalogNVM::writeVoltageSquareSum = 0;   // Sum of V^2 of non-identical pu
 
 
 double RealDevice::xPulse = 0;		// Conductance state in terms of the pulse number (doesn't need to be integer)
-double RealDevice::NL_LTP = 2.4;	// LTP nonlinearity
-double RealDevice::NL_LTD = -4.88;	// LTD nonlinearity
+double RealDevice::NL_LTP = 2.4;//0.04;//0.105;//2.4;	// LTP nonlinearity
+double RealDevice::NL_LTD = -4.88;//0.63;//2.4;//-4.88;	// LTD nonlinearity
 double RealDevice::paramALTP = 0;	// Parameter A for LTP nonlinearity
 double RealDevice::paramBLTP = 0;	// Parameter B for LTP nonlinearity
 double RealDevice::paramALTD = 0;	// Parameter A for LTD nonlinearity
 double RealDevice::paramBLTD = 0;	// Parameter B for LTD nonlinearity
 double RealDevice::sigmaDtoD = 0;
-double RealDevice::sigmaCtoC = 0; //0.035* (3.8462e-8 - 3.0769e-9); It cause seriously error 	// Sigma of cycle-to-cycle weight update vairation: defined as the percentage of conductance range
+double RealDevice::sigmaCtoC =  0.035*(3.8462e-8-3.0769e-9);//0.037 * (1.0/100000 - 1.0/1000000);//0.035* (3.8462e-8 - 3.0769e-9);//It cause seriously error 	// Sigma of cycle-to-cycle weight update vairation: defined as the percentage of conductance range
 /* Real Device */
 RealDevice::RealDevice(int x, int y) {
 	this->x = x; this->y = y;	// Cell location: x (column) and y (row) start from index 0
-	maxConductance = 3.8462e-8;		// Maximum cell conductance (S)
-	minConductance = 3.0769e-9;	// Minimum cell conductance (S)
+	maxConductance = 3.8462e-8;//1e-5;//3.8462e-8;		// Maximum cell conductance (S)
+	minConductance = 3.0769e-9;//1e-6;//3.0769e-9;	// Minimum cell conductance (S)
 	avgMaxConductance = maxConductance; // Average maximum cell conductance (S)
 	avgMinConductance = minConductance; // Average minimum cell conductance (S)
 	conductance = minConductance;	// Current conductance (S) (dynamic variable)
@@ -369,8 +368,8 @@ RealDevice::RealDevice(int x, int y) {
 	writePulseWidthLTP = 50e-9;	// Write pulse width (s) for LTP or weight increase
 	writePulseWidthLTD = 50e-9;	// Write pulse width (s) for LTD or weight decrease
 	writeEnergy = 0;	// Dynamic variable for calculation of write energy (J)
-	maxNumLevelLTP = 97;	// Maximum number of conductance states during LTP or weight increase
-	maxNumLevelLTD = 100;	// Maximum number of conductance states during LTD or weight decrease
+	maxNumLevelLTP = 128;	// Maximum number of conductance states during LTP or weight increase
+	maxNumLevelLTD = 128;	// Maximum number of conductance states during LTD or weight decrease
 	numPulse = 0;	// Number of write pulses used in the most recent write operation (dynamic variable)
 	cmosAccess = true;	// True: Pseudo-crossbar (1T1R), false: cross-point
     FeFET = false;		// True: FeFET structure (Pseudo-crossbar only, should be cmosAccess=1)
@@ -475,10 +474,15 @@ void RealDevice::Write(double deltaWeightNormalized, double weight, double minWe
 		deltaWeightNormalized = deltaWeightNormalized/(maxWeight-minWeight);
 		deltaWeightNormalized = truncate(deltaWeightNormalized, maxNumLevelLTP);
 		numPulse = deltaWeightNormalized * maxNumLevelLTP;
-		if (nonlinearWrite) {
+        if (nonlinearWrite) {
 			paramBLTP = (maxConductance - minConductance) / (1 - exp(-maxNumLevelLTP/paramALTP));
 			xPulse = InvNonlinearWeight(conductance, maxNumLevelLTP, paramALTP, paramBLTP, minConductance);
+
 			conductanceNew = NonlinearWeight(xPulse+numPulse, maxNumLevelLTP, paramALTP, paramBLTP, minConductance);
+
+            //Printf("deltanormalized = %.2e paramBLTP = %.2e  xPulse = %.2e  conductancenew = %.2e   minConductance = %.2e  xPulse = %.2e  numPulse = %d  paramA = %.2e\n",
+            //       deltaWeightNormalized*maxNumLevelLTP, paramBLTP,
+            //       xPulse, conductanceNew, minConductance, xPulse, numPulse, paramALTP);
 		} else {
 			xPulse = (conductance - minConductance) / (maxConductance - minConductance) * maxNumLevelLTP;
 			conductanceNew = (xPulse+numPulse) / maxNumLevelLTP * (maxConductance - minConductance) + minConductance;

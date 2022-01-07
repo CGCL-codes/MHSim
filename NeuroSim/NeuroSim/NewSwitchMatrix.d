@@ -1,0 +1,11 @@
+/home/temp2/jhxu/git/MHSim/NeuroSim/NeuroSim/NewSwitchMatrix.os: \
+ /home/temp2/jhxu/git/MHSim/NeuroSim/NeuroSim/NewSwitchMatrix.cpp \
+ /home/temp2/jhxu/git/MHSim/NeuroSim/NeuroSim/constant.h \
+ /home/temp2/jhxu/git/MHSim/NeuroSim/NeuroSim/formula.h \
+ /home/temp2/jhxu/git/MHSim/NeuroSim/NeuroSim/Technology.h \
+ /home/temp2/jhxu/git/MHSim/NeuroSim/NeuroSim/typedef.h \
+ /home/temp2/jhxu/git/MHSim/NeuroSim/NeuroSim/NewSwitchMatrix.h \
+ /home/temp2/jhxu/git/MHSim/NeuroSim/NeuroSim/FunctionUnit.h \
+ /home/temp2/jhxu/git/MHSim/NeuroSim/NeuroSim/InputParameter.h \
+ /home/temp2/jhxu/git/MHSim/NeuroSim/NeuroSim/MemCell.h \
+ /home/temp2/jhxu/git/MHSim/NeuroSim/NeuroSim/DFF.h

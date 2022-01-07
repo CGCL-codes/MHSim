@@ -14,7 +14,7 @@ void AD872::CalculateLatency(double numRead) {
 	} else {
 		readLatency = 0;
 
-		readLatency += 1/(1e7);//AD872 is 10M Hz frequency.
+		readLatency += 1.2/(1e9); //AD872 is 10M Hz frequency.
 		readLatency += 1/clkFreq;
 		//printf("numRead = %.4e\n",numRead);
 		readLatency *= numRead;
@@ -57,12 +57,6 @@ void AD872::CalculatePower(double numRead) {
 
 		leakage *= numReadCol;
 
-		// Dynamic energy (currently just import values)
-		if (mode == CMOS) {
-			readDynamicEnergy = 1.346e-12;	// 65nm tech node
-		} else {
-			readDynamicEnergy = 0.265e-12;	// 65nm tech node
-		}
         readDynamicEnergy = 312.5e-6*1e-7;//result from SPICE
 		readDynamicEnergy *= numReadCol;
 		readDynamicEnergy *= numRead;

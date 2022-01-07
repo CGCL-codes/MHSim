@@ -1,6 +1,9 @@
-//
-// Created by jiahong on 19-11-23.
-//
+/*
+ * @Author: jhxu
+ * @LastEditors: jhxu
+ * @LastEditTime: 2022-01-05 19:29:02
+ * @FilePath: /src/MHSim/chip.h
+ */
 
 #ifndef ZSIM_CHIP_H
 #define ZSIM_CHIP_H
@@ -11,17 +14,18 @@
 #include "coherence.h"
 #include <thread>
 #include <pthread.h>
+#include "../core.h"
+#include "../zsim.h"
+#include "../stats.h"
 using namespace std;
 
 struct mapinfo{
     Address address;
     uint16_t idx;
     uint16_t size; //
+    uint64_t completeCycle;
+    uint32_t replications;
 };
-
-
-
-
 
 template <class memoryType>
 class Chip{
@@ -32,7 +36,6 @@ public:
         this->latency = 0.;
         mcc = new MemristorMESICC();
         mmap = new std::map<Address ,mapinfo*>();
-        cells = 6;
         row_size = 128;
         col_size = 128;
         tidx = 0;
@@ -40,22 +43,33 @@ public:
             Tile<memoryType> *tile = new Tile<memoryType>();
             add(i,tile);
         }
+        cells = (*tiles)[0]->getCells();
         pt = new pthread_t[10];
+        repl = new uint32_t[50];
+        for(int i = 0; i < 100; i++) repl[i] = 1;
+        repl_index = 0;
     }
+
+    void initStats(AggregateStat* parentStat);
 
     Chip(std::vector<Tile<memoryType>*> *_tiles):tiles(_tiles){
         energy = 0.;
         latency = 0.;
-        cells = 6;
+        cells = (*_tiles)[0]->getCells();
         row_size = (*_tiles)[0]->getRowSize();
         col_size = (*_tiles)[0]->getColSize();
         mcc = new MemristorMESICC();
         mmap = new std::map<Address,mapinfo*>();
         tidx = 0;
         pt = new pthread_t[(*_tiles).size()];
+        repl = new uint32_t[50];
+
+        repl_index = 0;
+        init();
     }
 
 
+    void init();
     Tile<memoryType>* find(int addr){
         if((*tiles)[addr]!=NULL)
             return (*tiles)[addr];
@@ -63,12 +77,32 @@ public:
             return NULL;
     }
 
-    void printAll(){
+    // void printAll(){
+    //     uint64_t memcycle = 0, xbcycle = 0;
+    //     for (int i = 0; i < tiles->size(); ++i) {
+    //         memcycle += (*tiles)[i]->getMemCycle();
+    //         xbcycle += (*tiles)[i]->getXBCycle();
+    //     }
+    //     printf("MemCycle = %llu  , XBcycle = %llu \n", memcycle, xbcycle);
+    // }
+
+    uint64_t getTotalCycle(){
+        uint64_t xbcycle = 0;
         for (int i = 0; i < tiles->size(); ++i) {
-            std::cout<<i<<" tile  "<<(((*tiles)[i])==NULL)<<std::endl;
-            (*tiles)[i]->printState();
+            xbcycle += (*tiles)[i]->getXBCycle();
         }
+        return xbcycle;
     }
+
+    uint64_t getMemAccessCycle(){
+        uint64_t memcycle = 0;
+        for (int i = 0; i < tiles->size(); ++i) {
+            memcycle += (*tiles)[i]->getMemCycle();
+        }
+        return memcycle;
+    }
+    
+    bool mapMultiTiles(Matrix m, int &idx);
 
     bool memristor_mm(Address weight, Address operands, Address output, uint32_t M, uint32_t N, uint32_t K);
 
@@ -100,8 +134,8 @@ public:
         else return NULL;
     }
 
-    void addMapInfo(Address weight, uint16_t idx, uint16_t size){
-        mapinfo *minfo = new mapinfo{weight,idx,size};
+    void addMapInfo(Address weight, uint16_t idx, uint16_t size, uint64_t completeCycle, uint32_t replications = 1){
+        mapinfo *minfo = new mapinfo{weight,idx,size, completeCycle, replications};
         mmap->insert(std::pair<Address,mapinfo*>(weight,minfo));
     }
 
@@ -113,28 +147,18 @@ public:
 
     }
     void wait_for_end(){
-        
+
         for (int i = 0; i < (*tiles).size(); ++i) {
-            printf("wait for tile %d \n",i);
+            // printf("wait for tile %d \n",i);
             (*tiles)[i]->wait_for_end();
         }
         isEnd = true;
     }
 
+    bool getMask(){return Masked;}
+    void setMask(bool m){Masked = m;}
 
-    int findAvailableTile(int size){
-        //typename std::map<int,Tile<memoryType>*>::iterator iter;
-        //iter = tiles.begin();
-
-        for (int i = 0; i < (*tiles).size(); i++){
-            if((*tiles)[(i+tidx)%(*tiles).size()]->getAvailableCapacity()>size){
-                tidx = (i+tidx+1)%(*tiles).size();
-                return (tidx-1)%(*tiles).size();
-            }
-        }
-        return -1;
-    }
-
+    bool premap(Matrix m, std::vector<XB> *xbs, uint16_t depth = 0);
 
     ~Chip(){
         void* rtval[tiles->size()];
@@ -145,17 +169,16 @@ public:
         delete[] pt;
     }
 private:
-    //TODO::
-    //Control control;
-    //TODO:
-    //Coherence_table ct;
     std::vector<Tile<memoryType>*> *tiles;
+    bool Masked;
     double latency,energy;
     uint16_t cells, col_size, row_size,tidx;
     MemristorMESICC *mcc;
     std::map<Address ,mapinfo*> *mmap;
     static bool isEnd;
     pthread_t *pt;
+    uint32_t *repl;
+    int repl_index;
 };
 
 #endif //ZSIM_CHIP_H

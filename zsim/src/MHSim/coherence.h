@@ -1,6 +1,11 @@
-//
-// Created by jiahong on 20-2-18.
-//
+/*
+ * @Author: jhxu
+ * @LastEditors: jhxu
+ * @LastEditTime: 2022-01-05 21:38:56
+ * @FilePath: /src/MHSim/coherence.h
+ */
+
+
 
 #ifndef ZSIM_COHERENCE_H
 #define ZSIM_COHERENCE_H
@@ -8,12 +13,12 @@
 #include "../memory_hierarchy.h"
 #include "../locks.h"
 #include "../mutex.h"
-#include "neuro/Memristor_CU.h"
+#include "GEMM/Memristor_CU.h"
 
 
 typedef enum {
-    Map,
-    Compute
+    Map = 1,
+    Compute = 2
 } OperationTypes;
 
 struct AccReq{
@@ -21,14 +26,13 @@ struct AccReq{
     OperationTypes type;
     uint32_t K;
     uint32_t M;
-    uint32_t size;
+    uint32_t N;
     OperationType mode;
     Address otherAddr;
     Address resultAddr;
+    uint32_t replications;
 };
-//
-//
-//
+
 class MemristorMESICC {
 private:
     MESIState* array;
@@ -37,19 +41,11 @@ private:
     rwmutex rwm;
 public:
     MemristorMESICC(uint32_t _numLines) : numLines(_numLines){
-//        array = gm_calloc<MESIState>(numLines);
-//        for (unsigned int i = 0; i < numLines; ++i) {
-//            array[i] = I;
-//        }
         futex_init(&mlock);
     }
 
     MemristorMESICC(){
         numLines = 128;
-//        array = gm_calloc<MESIState>(numLines);
-//        for (unsigned int i = 0; i < numLines; ++i) {
-//            array[i] = I;
-//        }
         futex_init(&mlock);
     }
 
@@ -61,11 +57,4 @@ public:
     void processWriteBack();
 
 };
-//
-//
-//struct coherence_table{
-//    uint8_t offset;
-//
-//};
-//
 #endif //ZSIM_COHERENCE_H

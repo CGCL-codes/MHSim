@@ -76,7 +76,6 @@ ProcInfo childInfo[MAX_CHILDREN];
 volatile uint32_t debuggerChildIdx = MAX_THREADS;
 
 GlobSimInfo* globzinfo = nullptr; //used very sparingly, only in sig handlers. Should probably promote to a global like in zsim processes.
-
 bool perProcessDir, aslr;
 
 PinCmd* pinCmd;
@@ -312,6 +311,7 @@ int main(int argc, char *argv[]) {
         exit(0);
     }
 
+
     //arrayIH->Initialization<RealDevice>();
 
 //    float *X = new float[16], *Y = new float[16];
@@ -442,13 +442,15 @@ int main(int argc, char *argv[]) {
         bool simShouldAdvance = (ffProcs < activeProcs) && (sffProcs == 0);
 
         int64_t numPhases = zinfo->numPhases;
+        bool Masked = zinfo->Masked;
 
         if (deadlockDetection) {
             if (simShouldAdvance) {
                 //info("In deadlock check zone");
                 if (numPhases <= lastNumPhases) {
                     secsStalled += secsSlept;
-                    if (secsStalled > 10) warn("Stalled for %d secs so far", secsStalled);
+                    if (secsStalled > 10) warn("Stalled for %d secs so far %d", secsStalled, Masked);
+                    //if (secsStalled > 50 && zinfo->Masked) zinfo->Masked = false;
                 } else {
                     //info("Not stalled, did %ld phases since last check", numPhases-lastNumPhases);
                     lastNumPhases = numPhases;
@@ -469,7 +471,7 @@ int main(int argc, char *argv[]) {
             info("Child %d done (in-loop catch)", cpid);
         }
 
-        if (secsStalled > 6000) {
+        if (secsStalled > 60000) {
             warn("Deadlock detected, killing children");
             sigHandler(SIGINT);
             exit(42);

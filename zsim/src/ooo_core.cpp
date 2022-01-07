@@ -59,7 +59,7 @@ OOOCore::OOOCore(FilterCache* _l1i, FilterCache* _l1d, g_string& _name) : Core(_
     decodeCycle = DECODE_STAGE;  // allow subtracting from it
     curCycle = 0;
     phaseEndCycle = zinfo->phaseLength;
-
+    delay = 0;
     for (uint32_t i = 0; i < MAX_REGISTERS; i++) {
         regScoreboard[i] = 0;
     }
@@ -145,16 +145,16 @@ void OOOCore::store(Address addr) {
 
 // Predicated loads and stores call this function, gets recorded as a 0-cycle op.
 // Predication is rare enough that we don't need to model it perfectly to be accurate (i.e. the uops still execute, retire, etc), but this is needed for correctness.
-void OOOCore::predFalseMemOp() {
-    // I'm going to go out on a limb and assume just loads are predicated (this will not fail silently if it's a store)
-    loadAddrs[loads++] = -1L;
+// void OOOCore::predFalseMemOp() {
+//     // I'm going to go out on a limb and assume just loads are predicated (this will not fail silently if it's a store)
+//     loadAddrs[loads++] = -1L;
+// }
+void OOOCore::predFalseLoad() {
+       loadAddrs[loads++] = -1L;
 }
-//void OOOCore::predFalseLoad() {
-//        loadAddrs[loads++] = -1L;
-//}
-//void OOOCore::predFalseStore() {
-//        storeAddrs[stores++] = -1L;
-//}
+void OOOCore::predFalseStore() {
+       storeAddrs[stores++] = -1L;
+}
 void OOOCore::branch(Address pc, bool taken, Address takenNpc, Address notTakenNpc) {
     branchPc = pc;
     branchTaken = taken;
@@ -238,7 +238,10 @@ inline void OOOCore::bbl(Address bblAddr, BblInfo* bblInfo) {
 
         // Model RAT + ROB + RS delay between issue and dispatch
         uint64_t dispatchCycle = MAX(cOps, MAX(c2, c3) + (DISPATCH_STAGE - ISSUE_STAGE));
-
+        // if(cOps > MAX(c2, c3) + (DISPATCH_STAGE - ISSUE_STAGE))
+        // {
+        //     delay += cOps - (MAX(c2, c3) + (DISPATCH_STAGE - ISSUE_STAGE));
+        // }
         // info("IW 0x%lx %d %ld %ld %x", bblAddr, i, c2, dispatchCycle, uop->portMask);
         // NOTE: Schedule can adjust both cur and dispatch cycles
         insWindow.schedule(curCycle, dispatchCycle, uop->portMask, uop->extraSlots);
@@ -247,6 +250,7 @@ inline void OOOCore::bbl(Address bblAddr, BblInfo* bblInfo) {
         if (curCycle > c3) {
             curCycleIssuedUops = 0;
             curCycleRFReads = 0;
+            // printf("curCycle > c3  %d   %d \n", curCycle - c3, curCycle - dispatchCycle);
         }
 
         uint64_t commitCycle;
@@ -256,6 +260,8 @@ inline void OOOCore::bbl(Address bblAddr, BblInfo* bblInfo) {
         switch (uop->type) {
             case UOP_GENERAL:
                 commitCycle = dispatchCycle + uop->lat;
+                // curCycle = commitCycle;
+                // cRec.record(curCycle, dispatchCycle, commitCycle);
                 break;
 
             case UOP_LOAD:
@@ -447,6 +453,7 @@ inline void OOOCore::bbl(Address bblAddr, BblInfo* bblInfo) {
 #endif
         decodeCycle = minFetchDecCycle;
     }
+    // printf("delay %d \n",delay);
 }
 
 // Timing simulation code
@@ -497,15 +504,15 @@ void OOOCore::StoreFunc(THREADID tid, ADDRINT addr) {static_cast<OOOCore*>(cores
 void OOOCore::PredLoadFunc(THREADID tid, ADDRINT addr, BOOL pred) {
     OOOCore* core = static_cast<OOOCore*>(cores[tid]);
     if (pred) core->load(addr);
-    else core->predFalseMemOp();
-    //else core->predFalseLoad();
+    // else core->predFalseMemOp();
+    else core->predFalseLoad();
 }
 
 void OOOCore::PredStoreFunc(THREADID tid, ADDRINT addr, BOOL pred) {
     OOOCore* core = static_cast<OOOCore*>(cores[tid]);
     if (pred) core->store(addr);
-    else core->predFalseMemOp();
-    //else core->predFalseStore();
+    // else core->predFalseMemOp();
+    else core->predFalseStore();
 }
 
 void OOOCore::BblFunc(THREADID tid, ADDRINT bblAddr, BblInfo* bblInfo) {

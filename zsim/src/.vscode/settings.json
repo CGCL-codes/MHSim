@@ -1,0 +1,10 @@
+{
+    "files.associations": {
+        "*.tcc": "cpp",
+        "string": "cpp",
+        "regex": "cpp",
+        "string_view": "cpp",
+        "__locale": "cpp",
+        "__string": "cpp"
+    }
+}

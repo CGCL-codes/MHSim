@@ -80,7 +80,6 @@ SubArray::SubArray(InputParameter& _inputParameter, Technology& _tech, MemCell& 
 void SubArray::Initialize(int _numRow, int _numCol, double _unitWireRes){  //initialization module
 	if (initialized)
 		cout << "[Subarray] Warning: Already initialized!" << endl;  //avioding initialize twice
-	
 	numRow = _numRow;    //import parameters
 	numCol = _numCol;
 	unitWireRes = _unitWireRes;
@@ -378,11 +377,6 @@ void SubArray::CalculateArea() {  //calculate layout area for total design
   					width = MAX(wlBlSwitchMatrix.width, muxDecoder.width) + widthArray;
   					area = height * width;
   					usedArea = areaArray + slSwitchMatrix.area + wlBlSwitchMatrix.area + mux.area + muxDecoder.area + readCircuit.area + shiftAdd.area + subtractor.area;
-            //printf("usedArea is %.6e\n",usedArea);
-            //printf("Array area is %.6e\n",areaArray);
-            //printf("slSwitchMatrix.area is %.6e\n",slSwitchMatrix.area);
-            //printf("mux.area is %.6e\n",mux.area);
-            //printf("readCircuit.area %.6e\n",readCircuit.area);
   					emptyArea = area - usedArea;
           }
           else

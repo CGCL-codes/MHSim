@@ -12,6 +12,7 @@ excludeSrcs = [
 "fftoggle.cpp",
 "dumptrace.cpp",
 "sorttrace.cpp",
+os.environ["NEUROSIMPATH"] + "main.cpp",
 ]
 excludeSrcs += harnessSrcs
 
@@ -31,9 +32,11 @@ syscallSrc = libEnv.Substfile("virt/syscall_name.cpp", "virt/syscall_name.cpp.in
 #env["LIBS"] += ["neuro"]
 #env["LIBPATH"] += [os.environ["NEUROSIMPATH"]]
 #env.Program("neuro/dot_engine.cpp")
+NeuroSimPath = os.environ["NEUROSIMPATH"]
+NeuroSimSrcs = Glob(NeuroSimPath + "*.cpp") + Glob(NeuroSimPath + "NeuroSim/*.cpp") + Glob(NeuroSimPath + "GEMM/*.cpp")
 
 # Build libzsim.so
-globSrcNodes = Glob("*.cpp") + Glob("virt/*.cpp") + Glob("MHSim/*.cpp")
+globSrcNodes = Glob("*.cpp") + Glob("virt/*.cpp") + Glob("MHSim/*.cpp") + NeuroSimSrcs
 libSrcs = [str(x) for x in globSrcNodes if str(x) not in excludeSrcs]
 libSrcs += [str(x) for x in syscallSrc]
 libSrcs = list(set(libSrcs)) # ensure syscallSrc is not duplicated
@@ -55,7 +58,7 @@ traceEnv.Program("sorttrace", ["sorttrace.cpp", "access_tracing.cpp"] + commonSr
 # Build harness (static to make it easier to run across environments)
 #env["LINKFLAGS"] += " --static "
 env["LINKFLAGS"] += " -fopenmp -O3 -std=c++0x -w"
-env["LIBS"] += ["neuro"]
+#env["LIBS"] += ["neuro"]
 env["LIBS"] += ["pthread"]
 #env["LIBPATH"] += [os.environ["NEUROSIMPATH"]]
 env.Program("zsim", harnessSrcs + commonSrcs)

@@ -163,7 +163,6 @@ void Subtractor::CalculateLatency(double _rampInput, double _capLoad, double num
 		gm = CalculateTransconductance(widthNandP, PMOS, tech);
 		beta = 1 / (resPullUp * gm);
 		readLatency += horowitz(tr, beta, ramp[0], &ramp[1]);
-        //printf("%f, %f, %f, %f,%.4e, %f\n",resPullUp,tr,gm,beta,readLatency,&ramp[1]);
 		
 		// 2nd
 		resPullDown = CalculateOnResistance(widthNandN, NMOS, inputParameter.temperature, tech)*2;
@@ -214,12 +213,9 @@ void Subtractor::CalculateLatency(double _rampInput, double _capLoad, double num
 		beta = 1 / (resPullUp * gm);
 		readLatency += horowitz(tr, beta, ramp[7], &ramp[8]);
 
-        //printf("readLatency is %.4e\n", readLatency);		
 		readLatency *= numBit;
 		readLatency *= numRead;
 		rampOutput = ramp[8];
-        //printf("number of bit is %.4e\n", numBit);
-        //printf("number of read is %.4e\n", numRead);       
 	}
 }
 

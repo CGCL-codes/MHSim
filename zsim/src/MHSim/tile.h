@@ -1,68 +1,134 @@
-//
-// Created by jiahong on 19-11-23.
-//
+/*
+ * @Author: jhxu
+ * @LastEditTime: 2022-01-05 21:39:00
+ * @LastEditors: jhxu
+ * @FilePath: /src/MHSim/tile.h
+ */
 
 #ifndef ZSIM_TILE_H
 #define ZSIM_TILE_H
 #include "../memory_hierarchy.h"
-#include "neuro/Memristor_CU.hpp"
+#include "GEMM/Memristor_CU.hpp"
 #include "Cell.h"
 #include "coherence.h"
 #include <map>
 #include "alu.h"
 #include "buffer.h"
+#include "control_unit.h"
 #include <queue>
 #include <iostream>
+#include <algorithm>
+
 using namespace std;
+
+struct Item{
+    uint16_t index;
+    uint16_t cols;
+    uint16_t rows;
+    uint8_t start_col;
+    uint8_t start_row;
+    uint8_t size;
+};
+
+class Matrix;
+class XB;
+
+class XB{
+public:
+    XB(uint64_t rows, uint64_t cols, uint32_t _num_tiles = 0){remain_rows = rows; remain_cols = cols; num_tiles = _num_tiles;}
+    XB(){remain_rows = 0; remain_cols = 0; num_tiles = 0;}
+    XB(const XB &xb){remain_rows = xb.remain_rows; remain_cols = xb.remain_cols; num_tiles = xb.num_tiles;}
+    uint64_t available_capacity(){
+        return remain_rows*remain_cols;
+    }
+    bool operator<(XB &xb){
+        if(available_capacity()<xb.available_capacity()){
+            return true;
+        }else{
+            if(available_capacity() == xb.available_capacity()){
+                return num_tiles > xb.num_tiles;
+            }else{
+                return false;
+            }
+        }
+    }
+    bool operator>(XB &xb){
+        if(available_capacity()>xb.available_capacity()){
+            return true;
+        }else{
+            if(available_capacity() == xb.available_capacity()){
+                return num_tiles < xb.num_tiles;
+            }else{
+                return false;
+            }
+        }
+    }
+    bool compare(Matrix m);
+    void map(Matrix m);
+    void set(XB xb){
+        this->remain_cols = xb.remain_cols;
+        this->remain_rows = xb.remain_rows;
+    }
+    void print_size(){
+        printf("%d * %d \n", remain_rows, remain_cols);
+    }
+    uint64_t remain_rows;
+    uint64_t remain_cols;
+    uint32_t num_tiles;
+};
+
+class Matrix{
+public:
+    Matrix(uint64_t K, uint64_t M){
+        this->K = K;
+        this->M = M;
+    }
+    Matrix(const Matrix &m){K = m.K; M = m.M;}
+    bool operator>=(XB xb){
+        return M >= xb.remain_cols && K >= xb.remain_rows;
+    }
+    bool operator<=(XB xb){
+        return M <= xb.remain_cols && K <= xb.remain_rows;
+    }
+    Matrix operator-(XB &xb){
+        if(xb.compare(*this)){
+            printf("error: xb is larger than this matrix, Matrix = %d*%d   XB = %d*%d \n", K, M, xb.remain_rows, xb.remain_cols);
+        }
+        Matrix m(0,0);
+        if(xb.remain_rows >= K && xb.remain_cols < M){
+            M -= xb.remain_cols;
+            xb.remain_rows -= K;
+        }else if(xb.remain_rows < K && xb.remain_cols >= M){
+            K -= xb.remain_rows;
+            xb.remain_cols -= M;
+        }else{ // only K > remain_rows and M > remain_cols
+            m.M = M - xb.remain_cols;
+            m.K = xb.remain_rows;
+            K = K - xb.remain_rows;
+        }
+        return m;
+    }
+    uint64_t size(){return M*K;}
+    bool isNull(){return (M == 0) && (K == 0);}
+    uint64_t M;
+    uint64_t K;
+};
+
 
 template<class memoryType>
 class Tile{
 public:
-    Tile(){
-        PEs = new std::map<Address,Memristor_CU<memoryType>*>();
-        req_queue = new queue<AccReq>();
-        memCycle = 0;
-        arrayCycle = 0;
-        mapCycle = 0;
-        access_count = 0;
-        readCycle = 0;
-        computeCycle = 0;
-        count = 0;
-        buffer = new Buffer();
-        futex_init(&filterLock);
-        capacity = 1000;
-        available_capacity = 1000;
-        col_size = 128;
-        row_size = 128;
-        bits = 2;
-        cells = 6;
-        isEnd = false;
-    }
+    Tile();
 
 
-    Tile(Buffer *_buffer, uint16_t _bits, uint16_t _row_size, uint16_t _col_size,uint16_t _capacity, uint16_t _cells):buffer(_buffer),bits(_bits),row_size(_row_size),col_size(_col_size),capacity(_capacity),cells(_cells){
-        PEs = new std::map<Address,Memristor_CU<memoryType>*>();
-        req_queue = new queue<AccReq>();
-        memCycle = 0;
-        arrayCycle = 0;
-        mapCycle = 0;
-        access_count = 0;
-        readCycle = 0;
-        computeCycle = 0;
-        count = 0;
-        futex_init(&filterLock);
-        futex_init(&mtx);
-        futex_init(&process_mtx);
-        //capacity = 1000;
-        available_capacity = _capacity;
-        isEnd = false;
-        cnt = 0;
-    }
+    Tile(Buffer *_buffer, uint16_t _bits, uint16_t _row_size, uint16_t _col_size,uint16_t _capacity, uint16_t _cells, uint32_t index);
 
-    void  setXBs(uint16_t bits,uint16_t row_size,uint16_t col_size){
+    void  setXBs(uint16_t bits, uint16_t row_size, uint16_t col_size, uint16_t writeMux = 16){
         this->bits = bits;
         this->row_size = row_size;
         this->col_size = col_size;
+        this->writeMux = writeMux;
+        writeDrivers = row_size/writeMux;
     }
 
     Memristor_CU<memoryType>* find(Address addr)
@@ -72,38 +138,81 @@ public:
         else
             return NULL;
     }
+
+
+    float* getmLat(Address addr){
+        if(mLat->count(addr))
+            return (*mLat)[addr];
+        else return NULL;
+    }
+
+    void addmLat(Address addr, float* ml){
+        mLat->insert(std::pair<Address, float*>(addr, ml));
+    }
+
+    float getcLat(Address addr){
+        if(cLat->count(addr))
+            return (*cLat)[addr];
+        else return 0;
+    }
+
+    float addcLat(Address addr, float lat)
+    {
+        cLat->insert(std::pair<Address, float>(addr,lat));
+    }
+
+    bool isMapped(Address addr){
+        bool b = false;
+        futex_lock(&query_mtx);
+        b = mtTable->count(addr);
+        futex_unlock(&query_mtx);
+        return b;
+    }
+
+    uint64_t time(Address addr)
+    {
+        uint64_t rt = 0;
+
+        futex_lock(&query_mtx);
+        if(mtTable->count(addr))
+            rt = (*mtTable)[addr];
+
+        futex_unlock(&query_mtx);
+        return rt;
+    }
+
     void add(Address addr,Memristor_CU<memoryType>* mcu)
     {
         PEs->insert(std::pair<Address,Memristor_CU<memoryType>*>(addr,mcu));
     }
-    void map(Address weight,int offset){
 
+
+    /**
+     * @description: Pre-allocate the XBs
+     * @param {Matrix} m
+     * The weight matrix
+     * @return {*}  Whether the matrix can be fully mapped into XBs
+     */    
+    bool premap(Matrix m, uint16_t depth = 0);
+    
+    void syn(){
+        std::vector<XB> x;
+        XB_vector_premap->swap(x);
+        XB_vector_premap->insert(XB_vector_premap->end(), XB_vector->begin(), XB_vector->end());
     }
-//    void compute(Address weight, Address operands, int offset){
-//        Memristor_CU<memoryType>* mcu = find(weight);
-//        mcu->Latency();
-//    }
+
+    uint64_t get_cap(){
+        uint64_t cap = 0;
+        for(int i = 0; i < XB_vector->size(); ++i)
+            cap += (*XB_vector)[i].available_capacity();
+        return cap;
+    }
+
     void addQueue(AccReq accReq){
         futex_lock(&mtx);
         req_queue->push(accReq);
-
-        //std::cout<<"1111111     reqSize = "<<req_queue->size()<<std::endl;
-
         futex_unlock(&mtx);
-
-        //req_queue->size()
     }
-    void test(){}
-    void notifyProcess(){
-        //thread(&Tile::test,this);
-        //work_thread = std::thread(&Tile::test,this);
-        //pthread_create(&Tile::wt,NULL,prefetch);
-        //pthread_join(wt,NULL);
-        //if(work_thread.joinable())
-        //    work_thread.join();
-    }
-
-
 
     void printState(){
         std::cout<<"MemCycle = "<<memCycle<<"\t arrayCycle = "<<arrayCycle<<std::endl;
@@ -111,200 +220,21 @@ public:
         std::cout<<"ReadCycle = "<<readCycle<<"\t MapCycle = "<<mapCycle<<"\t ComputeCycle = "<<computeCycle<<std::endl;
     }
 
-    void prefetch(){
+    void prefetch();
 
-        futex_lock(&mtx);
-        bool a = req_queue->empty();
-        futex_unlock(&mtx);
-        if(a){
-            usleep(10);
-            return;
-        }
-        futex_lock(&process_mtx);
-
-        AccReq  accReq = req_queue->front();
-        futex_lock(&mtx);
-        req_queue->pop();
-        futex_unlock(&mtx);
+    uint16_t getCells(){return cells;}
 
 
-        if(accReq.mode == WMI){
-            if(accReq.type == Map){
-
-                //First lock (Writer)
-                //futex_lock(&filterLock);
-                //Fetch Weight
-                for(int i = 0; i < accReq.K; i++){
-                    int idx = buffer->findAvailable(memCycle);
-
-                    if(idx == -1){
-                        memCycle = buffer->wait();
-                        count ++;
-                        idx = buffer->findAvailable(memCycle);
-
-                        buffer->setFlags(accReq.lineAddr,idx,Map,memCycle);
-                    }
-                    uint64_t temp = memCycle;
-                    buffer->setBufferLine(accReq.M);
-                    for (int j = 0; j < accReq.M; ++j) {
-                        //TODO: Access Memory
-                        //Access all the columns at the i row
-                        access_count ++;
-                        MESIState dummyState = MESIState::I;
-                        //MemReq req = {accReq.lineAddr+(/*j*accReq.K+*/i), GETS, 0, &dummyState, memCycle, &filterLock, dummyState, 0, 0};
-                        MemReq req = {accReq.lineAddr+j*accReq.K, GETS, 0, &dummyState, memCycle, &filterLock, dummyState, 0, 0};
-                        memCycle = buffer->access(req);
-                    }
-                    readCycle += memCycle - temp;
-                    //if(readCycle > memCycle){
-                    //    printf("rdCycles = %llu   memCycle = %llu  temp = %llu   delta = %llu  \n",readCycle,memCycle,temp,memCycle-temp);
-                    //}
-                    //Total rows as one batch
-                    //Trigger write drivers to write cells
-//                    std::cout<<"idx    "<<idx<<std::endl;
-                    process(MAX(memCycle,arrayCycle),accReq);
-                    buffer->setUseless(idx,arrayCycle);
-
-                }
-
-                //futex_unlock(&filterLock);
-                //Unlock
-            }
-            else{
-                //Fetch Input
-
-                for(int i = 0; i < accReq.M /*It means the # of columns of Input*/; i++){
-                    int idx = buffer->findAvailable(memCycle);
-
-                    if(idx == -1){
-                        memCycle = buffer->wait();
-                        count ++;
-                        idx = buffer->findAvailable(memCycle);
-                        buffer->setFlags(accReq.lineAddr,idx,Compute,memCycle);
-                    }
-                    uint64_t temp = memCycle;
-                    //printf("5 %u ",(unsigned int)pthread_self());
-
-                    //futex_lock(&filterLock);
-                    buffer->setBufferLine(accReq.K);
-                    for (int j = 0; j < accReq.K; ++j) {
-                        //TODO: Access Memory
-                        //Access all the rows at the j column
-                        //memCycle += buffer->access(accReq.lineAddr+(j*accReq.M+i));
-                        MESIState dummyState = MESIState::I;
-                        access_count ++;
-                        //MemReq req = {accReq.lineAddr+(/*j*accReq.M+*/i), GETS, 0, &dummyState, memCycle, &filterLock, dummyState, 0, 0};
-                        MemReq req = {accReq.lineAddr+j*accReq.M, GETS, 0, &dummyState, memCycle, &filterLock, dummyState, 0, 0};
-                        memCycle = buffer->access(req);
-
-                    }
-                    readCycle += memCycle - temp;
-                    //Total rows as an input vector to multiply with matrix
-                    //Trigger read drivers to read cells and other components to compose the result
-//                    std::cout<<"idx    "<<idx<<std::endl;
-                    process(MAX(memCycle,arrayCycle),accReq);
-                    buffer->setUseless(idx,arrayCycle);
-
-                    // write back
-                    MESIState dummyState = MESIState::I;
-                    MemReq wbReq = {accReq.resultAddr+accReq.M, PUTX, 0, &dummyState, memCycle, &filterLock, dummyState,0,0};
-                    memCycle = buffer->access(wbReq);
-                    //lock to perform read (Reader)
-                    //process(MAX(memCycle,arrayCycle));
-                    //unlock
-                }
-
-                //futex_unlock(&filterLock);
-            }
-            //printf("6 %u\n",(unsigned int)pthread_self());
-
-        }
-        else{
-            if(accReq.type == Map){
-
-                //First lock (Writer)
-
-                for (int i = 0; i < accReq.K /*It means the # of columns of Weight*/; ++i) {
-                    buffer->setBufferLine(accReq.M);
-                    for (int j = 0; j < accReq.M; ++j) {
-                        //Access all the rows at the i column
-                        //memCycle += buffer->access(accReq.lineAddr+(i*accReq.M+j));
-                        access_count ++;
-                    }
-                    //Total rows as one batch
-                    //buffer->setFlags(idx,Map);
-                    //process(MAX(memCycle,arrayCycle));
-                }
-
-                //unlock
-            }
-            else{
-                for (int i = 0; i < accReq.M; ++i) {
-                    buffer->setBufferLine(accReq.K);
-                    for (int j = 0; j < accReq.K; ++j) {
-                        //Access all the columns at the i rows
-                        //memCycle += buffer->access(accReq.lineAddr+(i*accReq.K+j));
-                        access_count ++;
-                    }
-                    //Trigger read drivers to read cells and other components to compose the result
-                    //buffer->setFlags(idx,Compute);
-
-                    //lock to perform read (Reader)
-                    //process(MAX(memCycle,arrayCycle));
-                    //unlock
-                }
-
-            }
-
-        }
+    void process(uint64_t curCycle, AccReq arq, uint16_t offset = 0);
 
 
-
-        futex_unlock(&process_mtx);
-
-        //TODO: start Map or Compute
-
-
-
-
-
-    }
-
-
-    void process(uint64_t curCycle, AccReq arq){
-        //buffer->cursor
-        //futex_lock(&mtx);
-        //AccReq arq = req_queue->front();
-        //futex_unlock(&mtx);
-
-        if(arq.type == Map){
-            Memristor_CU<RealDevice>* mcu = find(arq.lineAddr);
-            if(mcu==NULL)
-            {
-                printf("before\n");
-                mcu = new Memristor_CU<RealDevice>(arq.M, arq.K, reinterpret_cast<float *>(arq.lineAddr), arq.mode, bits, row_size, col_size, cells);
-                printf("initialized\n");
-                add(arq.lineAddr,mcu);
-                available_capacity -= mcu->getSize();
-            }
-            arrayCycle = curCycle + mcu->getWriteLatency(buffer->findOffset()) * 2e9;
-            mapCycle += mcu->getWriteLatency(buffer->findOffset()) * 2e9;
-        }else{
-            //printf("compute\n");
-            while(find(arq.otherAddr) == NULL)
-                usleep(10);
-            Memristor_CU<RealDevice>* mcu = find(arq.otherAddr);
-            if(mcu->getLatency() == 0)
-                mcu->ReadLatency();
-            arrayCycle = curCycle + mcu->getLatency() * 2e9;
-            computeCycle += mcu->getLatency() * 2e9; //2e9 is the clock cycle in NeuroSim
-        }
-
-    }
-
-
-    uint16_t getAvailableCapacity(){
-        return available_capacity;
+    int64_t getAvailableCapacity(){
+        int64_t available = 0;
+        for(int i = 0; i < XB_capacity->size(); ++i)
+            available += (*XB_capacity)[i];
+        if(available - occupation < 0)
+            return 0;
+        return available - occupation;
     }
 
     uint16_t caculateSize(uint32_t M, uint32_t K, uint32_t cells, uint32_t colSize, uint32_t rowSize){
@@ -315,13 +245,22 @@ public:
         isEnd = true;
     }
 
+    void setOccupation(uint64_t ocp){
+        occupation += ocp;
+    }
+
     void wait_for_end(){
         while(!req_queue->empty()){
+            printf("req_queue size = %d \n", req_queue->size());
             usleep(100);
         }
 
         isEnd = true;
 
+    }
+
+    std::vector<XB> *getXBs(){
+        return XB_vector;
     }
 
     ~Tile(){
@@ -334,6 +273,8 @@ public:
     uint16_t getBits(){
         return bits;
     }
+    uint64_t getMemCycle(){return readCycle;}
+    uint64_t getXBCycle(){return computeCycle;}
     uint16_t getRowSize(){return row_size;}
     uint16_t getColSize(){return col_size;}
     uint16_t getCapacity(){return capacity;}
@@ -341,20 +282,31 @@ private:
     //TODO::
     Buffer *buffer;
     std::map<Address,Memristor_CU<memoryType>*> *PEs;
+    std::map<Address, float> *cLat;
+    std::map<Address, float*> *mLat;
+    std::map<Address, uint64_t> *mtTable;
+    std::map<Address,Item> *mapping_table;
+    std::vector<XB> *XB_vector, *XB_vector_premap;
+    std::vector<uint32_t> *XB_capacity;
     queue<AccReq> *req_queue; //control_unit just sends the req to each tiles
     //TODO::
-    ALU alu;
+    Control_Unit *control_unit;
+    ALU *alu;
     //uint16_t capacity,available_capacity;  //number of crossbar
     uint64_t memCycle,readCycle;
-    uint64_t arrayCycle,mapCycle,computeCycle;
+    uint64_t tileCycles;
+    uint64_t arrayCycle,mapCycle,computeCycle, mpCycle;
     uint64_t count,access_count;
-    uint16_t bits,row_size,col_size,capacity,available_capacity,cells;
+    uint64_t bits,row_size,col_size,cells;
+    int64_t  capacity,available_capacity,occupation;
     //std::thread work_thread;
     //pthread_t wt;
     bool isEnd;
-    lock_t mtx,process_mtx;
+    lock_t mtx, process_mtx, query_mtx;
     lock_t filterLock;
     uint64_t cnt;
+    uint16_t writeMux;
+    uint16_t writeDrivers;
 };
 
 #endif //ZSIM_TILE_H

@@ -156,7 +156,7 @@ class Core : public GlobAlloc {
 
     public:
         explicit Core(g_string& _name) : lastUpdateCycles(0), lastUpdateInstrs(0), name(_name) {}
-
+        uint64_t delay;
         virtual uint64_t getInstrs() const = 0; // typically used to find out termination conditions or dumps
         virtual uint64_t getPhaseCycles() const = 0; // used by RDTSC faking --- we need to know how far along we are in the phase, but not the total number of phases
         virtual uint64_t getCycles() const = 0;

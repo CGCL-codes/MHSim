@@ -56,7 +56,7 @@
 #include "DecoderDriver.h"
 #include "SRAMWriteDriver.h"
 #include "ReadCircuit.h"
-#include "AD872.h"
+//#include "AD872.h"
 #include "SwitchMatrix.h"
 #include "ShiftAdd.h"
 #include "Subtractor.h"
@@ -148,7 +148,8 @@ public:
     // add the new WL decoder driver
     WLNewDecoderDriver wlDecoderDriverNew;
     
-	AD872 readCircuit;
+    ReadCircuit readCircuit;
+	//AD872 readCircuit;
 	VoltageSenseAmp voltageSenseAmp;
 	Precharger precharger;
 	SenseAmp senseAmp;

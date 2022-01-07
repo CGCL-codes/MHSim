@@ -39,20 +39,27 @@
 .SECONDEXPANSION:
 
 MAINS := main.cpp
-ALLSRC := $(wildcard *.cpp NeuroSim/*.cpp neuro/*.cpp)
+ALLSRC := $(wildcard *.cpp NeuroSim/*.cpp GEMM/*.cpp)
 SRC := $(filter-out $(MAINS),$(ALLSRC))
 ALLOBJ := $(ALLSRC:.cpp=.o)
 OBJ := $(SRC:.cpp=.o)
+OBJD := $(ALLSRC:.cpp=.d)
+OBJOS := $(ALLSRC:.cpp=.os)
+SO := libmhsim.so
 
 CXX := g++
 CXXFLAGS := -fopenmp -O3 -std=c++0x -w -fPIC
 
-.PHONY: all clean
+
+.PHONY: all clean sharedobj
 all: $(MAINS:.cpp=)
 $(MAINS:.cpp=): $(OBJ) $$@.o
-	$(CXX) $(CXXFLAGS) $^ -o $@ -lopenblas -L /home/xujh/openblas/lib
-#%.o: %.cpp
-#	$(CXX) -c $(CXXFLAGS) $< -o $@
+	$(CXX) $(CXXFLAGS) $^ -o $@
+%.o: %.cpp
+	$(CXX) -c $(CXXFLAGS) $< -o $@
+
+sharedobj: $(OBJ)
+	$(CXX) -shared -o $(SO) $(OBJ)
 
 depend: .depend
 .depend: $(ALLSRC)
@@ -62,7 +69,8 @@ include .depend
 
 clean:
 	$(RM) $(MAINS:.cpp=)
-	$(RM) $(ALLOBJ)
+	$(RM) $(ALLOBJ) $(OBJD) $(OBJOS)
+	$(RM) $(SO)
 
 # Run simulation
 NOW := $(shell date +"%Y%m%d_%H%M%S")

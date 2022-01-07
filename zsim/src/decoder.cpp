@@ -414,13 +414,12 @@ void Decoder::emitMul(Instr& instr, DynUopVec& uops) {
 
         assert(srcs <= 2);
 
-        emitExecUop(srcRegs[0], srcRegs[1], dstRegs[0], REG_EXEC_TEMP, uops, 3, PORT_1);
-        emitExecUop(srcRegs[0], srcRegs[1], dstRegs[1], REG_EXEC_TEMP+1, uops, 3, PORT_1);
-        emitExecUop(REG_EXEC_TEMP, REG_EXEC_TEMP+1, dstRegs[2], 0, uops, 1, PORTS_015);
-
+        emitExecUop(srcRegs[0], srcRegs[1], dstRegs[0], REG_EXEC_TEMP, uops, 0, PORT_1);//3
+        emitExecUop(srcRegs[0], srcRegs[1], dstRegs[1], REG_EXEC_TEMP+1, uops, 0, PORT_1);//3
+        emitExecUop(REG_EXEC_TEMP, REG_EXEC_TEMP+1, dstRegs[2], 0, uops, 0, PORTS_015);//1
         emitStores(instr, uops);
     } else {
-        emitBasicOp(instr, uops, 3, PORT_1);
+        emitBasicOp(instr, uops, 3, PORT_1);//3
     }
 }
 
@@ -795,15 +794,17 @@ bool Decoder::decodeInstr(INS ins, DynUopVec& uops) {
                         lat = 3;
                         ports = PORT_1;
                         break;
-
+ 
                     case XO(MULSS):
                     case XO(MULPS):
                         lat = 4;
+                        // printf("MULSS \n");
                         ports = PORT_0;
                         break;
                     case XO(MULSD):
                     case XO(MULPD):
                         lat = 5;
+                        // printf("MULSD \n");
                         ports = PORT_0;
                         break;
 

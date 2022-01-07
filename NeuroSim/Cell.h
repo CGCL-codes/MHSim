@@ -176,7 +176,7 @@ public:
 	double GetMaxReadCurrent(){
       if(cmosAccess)
           return readVoltage * 1/(1/avgMaxConductance+resistanceAccess);
-      else 
+      else
           return readVoltage * avgMaxConductance;}
 	double GetMinReadCurrent(){
       if(cmosAccess)

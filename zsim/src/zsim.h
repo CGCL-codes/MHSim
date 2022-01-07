@@ -47,6 +47,7 @@ class ContentionSim;
 class EventRecorder;
 class PinCmd;
 class PortVirtualizer;
+template <class memoryType> class Chip;
 class VectorCounter;
 class AccessTraceWriter;
 class TraceDriver;
@@ -183,6 +184,8 @@ struct GlobSimInfo {
     TraceDriver* traceDriver;
 
     Chip<RealDevice> *chip;
+    bool Masked;
+
 };
 
 

@@ -337,7 +337,8 @@ MemObject* BuildMemoryController(Config& config, uint32_t lineSize, uint32_t fre
     string type = config.get<const char*>("sys.mem.type", "Simple");
 
     //Latency
-    uint32_t latency = (type == "DDR")? -1 : config.get<uint32_t>("sys.mem.latency", 100);
+    uint32_t latency = (type == "DDR")? -1 : config.get<uint32_t>("sys.mem.latency", 40);
+
 
     MemObject* mem = nullptr;
     if (type == "Simple") {
@@ -398,7 +399,7 @@ void BuildMemristorAccelerator(Config& config, const string& prefix){//prefix = 
         uint16_t col_size = config.get<uint32_t>(prefix + "crossbar.colSize",128);
         uint16_t capacity = config.get<uint32_t>(prefix + "crossbar.num",16*16);//# of XBs
         uint16_t cells = config.get<uint32_t>(prefix + "crossbar.cells",1);//# of cells to present a floating-point number
-        Tile<RealDevice> *tile = new Tile<RealDevice>(BuildAcceleratorBuffer(config,prefix_buffer),bits,row_size,col_size,capacity,cells);
+        Tile<RealDevice> *tile = new Tile<RealDevice>(BuildAcceleratorBuffer(config, prefix_buffer),bits,row_size,col_size,capacity,cells,i);
         (*vTiles)[i] = tile;
     }
     //Chip<RealDevice> *chip = new Chip<RealDevice>(vTiles);
@@ -796,6 +797,12 @@ static void InitSystem(Config& config) {
     //Init memristor
     BuildMemristorAccelerator(config,prefix1);
 
+    //Init stats: mba
+    AggregateStat* gs = new AggregateStat(true);
+    gs->init("MBA", "MBA stats");
+    zinfo->chip->initStats(gs);
+    zinfo->rootStat->append(gs);
+
     //Init stats: caches, mem
     for (const char* group : cacheGroupNames) {
         AggregateStat* groupStat = new AggregateStat(true);
@@ -803,6 +810,7 @@ static void InitSystem(Config& config) {
         for (vector<BaseCache*>& banks : *cMap[group]) for (BaseCache* bank : banks) bank->initStats(groupStat);
         zinfo->rootStat->append(groupStat);
     }
+
 
     //Initialize event recorders
     //for (uint32_t i = 0; i < zinfo->numCores; i++) eventRecorders[i] = new EventRecorder();
@@ -899,13 +907,14 @@ static void InitGlobalStats() {
 }
 
 
-void SimInit(const char* configFile, const char* outputDir, uint32_t shmid) {
+void SimInit(const char* configFile, const char* outputDir, uint32_t shmid, bool& memristor) {
     zinfo = gm_calloc<GlobSimInfo>();
     zinfo->outputDir = gm_strdup(outputDir);
     zinfo->statsBackends = new g_vector<StatsBackend*>();
 
     Config config(configFile);
 
+    memristor = config.get<bool>("sim.useMemristor",false);
     //Debugging
     //NOTE: This should be as early as possible, so that we can attach to the debugger before initialization.
     zinfo->attachDebugger = config.get<bool>("sim.attachDebugger", false);

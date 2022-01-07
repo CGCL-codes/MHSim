@@ -443,7 +443,7 @@ class OOOCore : public Core {
         uint64_t getCycles() const {return cRec.getUnhaltedCycles(curCycle);}
 
         void contextSwitch(int32_t gid);
-
+        
         virtual void join();
         virtual void leave();
 
@@ -473,9 +473,9 @@ class OOOCore : public Core {
 
         // Predicated loads and stores call this function, gets recorded as a 0-cycle op.
         // Predication is rare enough that we don't need to model it perfectly to be accurate (i.e. the uops still execute, retire, etc), but this is needed for correctness.
-        inline void predFalseMemOp();
-        //inline void predFalseLoad();
-        //inline void predFalseStore();
+        // inline void predFalseMemOp();
+        inline void predFalseLoad();
+        inline void predFalseStore();
         inline void branch(Address pc, bool taken, Address takenNpc, Address notTakenNpc);
 
         inline void bbl(Address bblAddr, BblInfo* bblInfo);
