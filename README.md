@@ -30,43 +30,43 @@ You need to install packages below before compiling MHSim.
 2. **Compiling and Installation**
 Update the environment script [env.sh](env.sh) according to your machine configuration.
 
-```sh
-MHSim=`pwd`
-NEUROSIMPATH=$MHSim/NeuroSim/ #root path of NeuroSim
-PINPATH=$MHSim/zsim/pin-2.14/  #path of pin_tool
-LIBCONFIG= #path of libconfig
-HDF5= #path of hdf5
-LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$HDF5/lib:$LIBCONFIG:/lib
-INCLUDE=$INCLUDE:$HDF5/include:$LIBCONFIG:/include
-LIBRARY_PATH=$LIBRARY_PATH:$HDF5/lib
-export PINPATH NEUROSIMPATH HDF5 LD_LIBRARY_PATH LIBRARY_PATH
-```
+  ```sh
+  MHSim=`pwd`
+  NEUROSIMPATH=$MHSim/NeuroSim/ #root path of NeuroSim
+  PINPATH=$MHSim/zsim/pin-2.14/  #path of pin_tool
+  LIBCONFIG= #path of libconfig
+  HDF5= #path of hdf5
+  LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$HDF5/lib:$LIBCONFIG:/lib
+  INCLUDE=$INCLUDE:$HDF5/include:$LIBCONFIG:/include
+  LIBRARY_PATH=$LIBRARY_PATH:$HDF5/lib
+  export PINPATH NEUROSIMPATH HDF5 LD_LIBRARY_PATH LIBRARY_PATH
+  ```
 
 Compile MHSim with the instructions below:
-```sh
-$ cd MHSim
-$ source env.sh
-$ cd zsim
-$ scons -j16
-```
+  ```sh
+  $ cd MHSim
+  $ source env.sh
+  $ cd zsim
+  $ scons -j16
+  ```
 
 ## Usage
 
 After compiling the MHSim, you can evaluate any applications with: 
 
-```sh
-$ ./build/opt/zsim tests/mba.cfg
-# Assume that you have specified the command in mba.cfg.
-```
+  ```sh
+  $ ./build/opt/zsim tests/mba.cfg
+  # Assume that you have specified the command in mba.cfg.
+  ```
 
 The simulation results can be found in zsim.out. We note that the applications without cblas_sgemm functions do not work in the MBA since the MBA mainly accelerates the MVM operations.
 
 You can also integrate the MHSim with other application to simulate the computation error of memristor crossbar arrays. You can run the instruction below to compile a .so file:
 
-```sh
-$ cd MHSim/NeuroSim
-$ make sharedobj
-```
+  ```sh
+  $ cd MHSim/NeuroSim
+  $ make sharedobj
+  ```
 These instructions will generate a libmhsim.so file. You can link this library with other applications such as Caffe to replace the cblas_sgemm function. The main.cpp file shows examples of placing the cblas_sgemm function and estimating the latency and energy of performing the analog MVMs.
 
 ## Origianl License & Copyright of zsim
