@@ -18,7 +18,7 @@ The NeuroSim here is reorganized to support floating-point general matrix-matrix
 
 ## Setup
 
-1.**External Dependencies**
+**1.External Dependencies**
 You need to install packages below before compiling MHSim.
 - gcc (>=4.6).
 - Intel Pin Toolkit (>2.8 and <3.0). The [pin](https://github.com/burymyname/pin-2.14) (2.14) is included in the project. 
@@ -27,7 +27,7 @@ You need to install packages below before compiling MHSim.
 - [libelf](https://github.com/WolfgangSt/libelf).
 
 
-2.**Compiling and Installation**
+**2.Compiling and Installation**
 Update the environment script [env.sh](env.sh) according to your machine configuration.
 
   ```sh
