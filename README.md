@@ -7,7 +7,7 @@ MHSim: A Simulation Framework for Memristor-based Heterogeneous Computing Archit
 - [Introduction](#Introduction)
 - [Setup](#Setup)
 - [Usage](#usage)
-- [License](#Origianl License & Copyright of zsim)
+- [License](#Origianl)
 
 ## Introduction
 
