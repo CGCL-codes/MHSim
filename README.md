@@ -42,7 +42,7 @@ LIBRARY_PATH=$LIBRARY_PATH:$HDF5/lib
 export PINPATH NEUROSIMPATH HDF5 LD_LIBRARY_PATH LIBRARY_PATH
 ```
 
-Compile MHSim with the instructions below:
+Compile MHSim with the below instructions:
 ```sh
 $ cd MHSim
 $ source env.sh
