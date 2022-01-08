@@ -1,3 +1,4 @@
 NeuroSim/.*
-zsim/.cproject
-zsim/.project
+zsim/.*
+zsim/.*
+.gitignore
