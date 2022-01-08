@@ -2,4 +2,6 @@
 *.out
 *.txt
 main
-.*
+.cproject
+.gitignore
+.project
