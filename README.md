@@ -11,7 +11,7 @@ MHSim: A Simulation Framework for Memristor-based Heterogeneous Computing Archit
 
 ## Introduction
 
-MHSim is implemented with ZSim and NeuroSim. MHSim is used to evaluate the performance and energy of memristor-based accelerators (MBAs) for general-purpose applications written by C/C++.
+MHSim is implemented with ZSim and NeuroSim. MHSim is used to evaluate the performance and energy of memristor-based accelerators (MBAs) for general-purpose applications written in C/C++.
 
 The NeuroSim here is reorganized to support floating-point general matrix-matrix multiplication (GEMM). It can simulate the MVM results considering the non-ideal properties of memristor devices and circuits. The estimated latency and energy of performing MVM operations are also supported. We use ZSim to simulate CPUs and the memory hierarchy and exploit NeuroSim to simulate the MBA.
 
@@ -36,7 +36,8 @@ NEUROSIMPATH=$MHSim/NeuroSim/ #root path of NeuroSim
 PINPATH=$MHSim/zsim/pin-2.14/  #path of pin_tool
 LIBCONFIG= #path of libconfig
 HDF5= #path of hdf5
-LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$HDF5/lib:$LIBCONFIG:/lib
+LIBELF= #path of libelf
+LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$HDF5/lib:$LIBCONFIG:$LIBELF/lib:/lib
 INCLUDE=$INCLUDE:$HDF5/include:$LIBCONFIG:/include
 LIBRARY_PATH=$LIBRARY_PATH:$HDF5/lib
 export PINPATH NEUROSIMPATH HDF5 LD_LIBRARY_PATH LIBRARY_PATH
