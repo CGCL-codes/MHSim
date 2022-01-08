@@ -70,7 +70,7 @@ You can also integrate the MHSim with other application to simulate the computat
 $ cd MHSim/NeuroSim
 $ make sharedobj
 ```
-These instructions will generate a libmhsim.so file. You can link this library with other applications such as Caffe to replace the cblas_sgemm function. The main.cpp file shows examples of placing the cblas_sgemm function and estimating the latency and energy of performing the analog MVMs.
+These instructions will generate a libmhsim.so file. You can link this library with other applications such as Caffe to replace the cblas_sgemm function. The main.cpp file shows examples of replacing the cblas_sgemm function and estimating the latency and energy of performing the analog MVMs.
 
 ## Origianl License & Copyright of zsim
 
