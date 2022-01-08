@@ -64,7 +64,7 @@ $ ./build/opt/zsim tests/mba.cfg
 
 The simulation results can be found in zsim.out. We note that the applications without cblas_sgemm functions do not work in the MBA since the MBA mainly accelerates the MVM operations.
 
-You can also integrate the MHSim with other application to simulate the computation error of memristor crossbar arrays. You can run the instruction below to compile a .so file:
+You can also integrate the MHSim with other application to simulate the computation error of memristor crossbar arrays. You can run the instructions below to compile a .so file:
 
 ```sh
 $ cd MHSim/NeuroSim
