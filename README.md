@@ -53,7 +53,7 @@ $ cd zsim
 $ scons -j16
 ```
 
-## Usage
+## How to run
 
 After compiling the MHSim, you can evaluate any applications with: 
 
