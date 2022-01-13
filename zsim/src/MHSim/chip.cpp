@@ -132,9 +132,6 @@ bool Chip<RealDevice>::memristor_mm(Address weight, Address operands, Address ou
         mcc->startAccess(accReq);
         if(mcc->shouldAllocate(accReq)){ // Decide whether we should allocate resources to map the request.
             uint32_t replications = repl[repl_index++];
-            if(N == 100)
-                replications = 1;
-            printf("Matrix %d*%d  replications = %d   %d  N = %d \n", M, K, replications, replications * M * K * 8/128/128, N);
 
             for(int iii = 0; iii < replications; ++iii){
                 int idx = -1;
