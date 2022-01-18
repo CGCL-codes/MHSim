@@ -101,10 +101,13 @@ public:
         }else if(xb.remain_rows < K && xb.remain_cols >= M){
             K -= xb.remain_rows;
             xb.remain_cols -= M;
-        }else{ // only K > remain_rows and M > remain_cols
+        }else{ // only K >= remain_rows and M >= remain_cols
             m.M = M - xb.remain_cols;
             m.K = xb.remain_rows;
             K = K - xb.remain_rows;
+            
+            xb.remain_rows = 0;
+            xb.remain_cols = 0;
         }
         return m;
     }
