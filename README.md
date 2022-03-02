@@ -10,8 +10,7 @@ MHSim: A Simulation Framework for Memristor-based Heterogeneous Computing Archit
 - [License](#origianl-license--copyright-of-zsim)
 
 ## Introduction
-
-MHSim is used to evaluate the performance and energy of memristor-based accelerators (MBAs) for general-purpose applications written in C/C++. MHSim is implemented with ZSim and NeuroSim. The NeuroSim here is reorganized to support floating-point general matrix-matrix multiplication (GEMM) in MBAs. It can estimate the latency and energy of performing MVM operations  while still taking the non-ideal properties of memristor devices and circuits into account. ZSim is used to simulate CPUs and the memory hierarchy. 
+MHSim is a simulation framework that can be used to evaluate the energy efficiency and performance of general-purpose applications running with both memristor-based accelerators (MBAs) and CPUs. MHSim also provides flexible system-level interfaces and circuit-level simulation models for designers to configure heterogeneous computing architectures. MHSim is implemented with ZSim and NeuroSim. The NeuroSim here is reorganized to support floating-point general matrix-matrix multiplication (GEMM) in MBAs.  ZSim is used to simulate CPUs and the memory hierarchy. MHSim can estimate the latency and energy of performing MVM operations while still taking the non-ideal properties of memristor devices and circuits into account. 
 
 
 ## Setup
