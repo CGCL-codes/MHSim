@@ -69,6 +69,21 @@ $ make sharedobj
 ```
 These instructions will generate a libmhsim.so file. You can link this library with other applications such as Caffe to replace the cblas_sgemm function. The main.cpp file shows examples of replacing the cblas_sgemm function and estimating the latency and energy of performing the analog MVMs.
 
+## Citing MHSim
+
+If you use MHSim, please cite our reearch paper published at TCAD 2022.
+
+**Haikun Liu, Jiahong Xu, Xiaofei Liao, Hai Jin, Yu Zhang, and Fubing Mao, A Simulation Framework for Memristor-Based Heterogeneous Computing Architectures, in IEEE Transactions on Computer-Aided Design of Integrated Circuits and Systems, 2022, doi: 10.1109/TCAD.2022.3152385.**
+```javascript
+@ARTICLE{MHSim,
+  author={Liu, Haikun and Xu, Jiahong and Liao, Xiaofei and Jin, Hai and Zhang, Yu and Mao, Fubing},
+  journal={IEEE Transactions on Computer-Aided Design of Integrated Circuits and Systems}, 
+  title={A Simulation Framework for Memristor-Based Heterogeneous Computing Architectures}, 
+  year={2022},
+  doi={10.1109/TCAD.2022.3152385}
+}
+
+
 ## Origianl License & Copyright of zsim
 
 zsim is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.
